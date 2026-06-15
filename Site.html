@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Intermatch - Resultados do Interclasse</title>
+ 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap%22 rel="stylesheet">
+ 
+<style>
+    /* Variáveis base - Tema Claro (Light) */
+    :root {
+        --bg-gradient: linear-gradient(135deg, #e0ebf6 0%, #f0f4f8 100%);
+        --header-bg: rgba(255, 255, 255, 0.9);
+        --card-bg: #ffffff;
+        --text-main: #0f172a;
+        --text-muted: #64748b;
+        --accent: #0284c7; 
+        --accent-gradient: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+        /* Logo InterMatch em Laranja */
+        --logo-gradient: linear-gradient(135deg, #ff6b00 0%, #ff9e00 100%);
+        --border-color: #d0dbe7;
+        --border-hover: rgba(2, 132, 199, 0.4);
+        --score-bg: #f1f5f9;
+        --nav-nav-bg: #cbd5e1;
+        --nav-btn-text: #475569;
+        --nav-btn-active-bg: #ffffff;
+        --live-color: #ef4444;
+        --live-bg: #fee2e2;
+        --bracket-match-bg: #f8fafc;
+    }
+ 
+    /* Variáveis - Tema Escuro (Dark Azulado) */
+    [data-theme="dark"] {
+        --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        --header-bg: rgba(15, 23, 42, 0.95);
+        --card-bg: #1e293b;
+        --text-main: #f8fafc;
+        --text-muted: #94a3b8;
+        --accent: #38bdf8;
+        --accent-gradient: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+        --logo-gradient: linear-gradient(135deg, #ff6b00 0%, #ffaa00 100%);
+        --border-color: #334155;
+        --border-hover: rgba(56, 189, 248, 0.4);
+        --score-bg: #0f172a;
+        --nav-nav-bg: #0f172a;
+        --nav-btn-text: #94a3b8;
+        --nav-btn-active-bg: #1e293b;
+        --live-color: #f87171;
+        --live-bg: #451a1a;
+        --bracket-match-bg: #0f172a;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease; }
+    body { 
+        background: var(--bg-gradient); 
+        color: var(--text-main); 
+        min-height: 100vh; 
+        display: flex; 
+        flex-direction: column;
+        overflow-x: hidden;
+    }
+    header {
+        display: flex; 
+        flex-direction: column;
+        align-items: center; 
+        gap: 1rem;
+        padding: 1.2rem 5%; 
+        background: var(--header-bg); 
+        border-bottom: 2px solid var(--accent);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); 
+        position: sticky; 
+        top: 0; 
+        z-index: 100; 
+        backdrop-filter: blur(12px);
+    }
+ 
+    @media (min-width: 768px) {
+        header { flex-direction: row; justify-content: space-between; }
+    }
+ 
+    .logo-intermatch {
+        font-family: 'Orbitron', sans-serif; 
+        font-weight: 900; 
+        letter-spacing: -1px; 
+        background: var(--logo-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-size: 2.2rem; 
+        text-transform: uppercase; 
+        cursor: pointer;
+    }
+ 
+    /* Lado Direito do Header (Controles) */
+    .header-controls {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+ 
+    /* Abas de Navegação (Anos) */
+    .year-nav {
+        display: flex;
+        gap: 4px;
+        background: var(--nav-nav-bg);
+        padding: 4px;
+        border-radius: 10px;
+    }
+ 
+    .nav-btn {
+        background: transparent;
+        border: none;
+        color: var(--nav-btn-text);
+        padding: 6px 14px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        border-radius: 7px;
+        cursor: pointer;
+    }
+    .nav-btn.active {
+        background: var(--nav-btn-active-bg);
+        color: var(--accent);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+ 
+    /* Botão de Troca de Tema */
+    .theme-toggle-btn {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        color: var(--text-main);
+        padding: 8px;
+        border-radius: 10px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        font-size: 1.1rem;
+    }
+ 
+    .theme-toggle-btn:hover {
+        border-color: var(--accent);
+    }
+    /* Filtros de Esporte */
+    .filters { 
+        display: flex; 
+        justify-content: center; 
+        gap: 10px; 
+        margin: 2rem auto 1rem; 
+        flex-wrap: wrap; 
+        max-width: 1300px;
+        padding: 0 2rem;
+    }
+    .filter-btn {
+        background: var(--card-bg); 
+        border: 1px solid var(--border-color); 
+        color: var(--text-muted);
+        padding: 8px 18px; 
+        border-radius: 10px; 
+        cursor: pointer; 
+        font-size: 0.9rem; 
+        font-weight: 600; 
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+    .filter-btn:hover {
+        color: var(--text-main);
+        border-color: var(--accent);
+    }
+ 
+    .filter-btn.active {
+        background: var(--accent-gradient); 
+        color: white; 
+        border-color: transparent; 
+        box-shadow: 0 4px 12px rgba(2, 132, 199, 0.15);
+    }
+    /* Grid Layout */
+    .container {
+        flex: 1; 
+        max-width: 1340px; 
+        margin: 0 auto 3rem; 
+        padding: 0 2rem;
+        display: grid; 
+        grid-template-columns: 1fr 1fr; 
+        gap: 2rem; 
+        width: 100%;
+    }
+ 
+    .right-column {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+    @media (max-width: 1024px) { 
+        .container { grid-template-columns: 1fr; } 
+    }
+    .section-title {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 1.3rem; 
+        text-transform: uppercase; 
+        margin-bottom: 1.2rem; 
+        color: var(--text-main);
+        display: flex; 
+        align-items: center; 
+        gap: 10px;
+    }
+    .section-title::before {
+        content: ''; 
+        display: inline-block; 
+        width: 4px; 
+        height: 16px;
+        background: var(--accent-gradient); 
+        border-radius: 2px; 
+    }
+    /* Cards de Jogos */
+    .matches-grid { display: flex; flex-direction: column; gap: 14px; animation: fadeIn 0.3s ease-out; }
+    .match-card {
+        background: var(--card-bg); 
+        border: 1px solid var(--border-color); 
+        border-radius: 14px;
+        padding: 1.25rem; 
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center; 
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+    }
+ 
+    .match-card:hover { 
+        transform: translateY(-1px); 
+        border-color: var(--border-hover); 
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05); 
+    }
+    .team { font-weight: 700; font-size: 1.05rem; width: 38%; color: var(--text-main); }
+    .match-card .team:first-child { text-align: right; }
+    .match-card .team:last-child { text-align: left; }
+ 
+    .match-info { display: flex; flex-direction: column; align-items: center; width: 24%; }
+    .score { 
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 1.6rem; 
+        font-weight: 700; 
+        color: var(--text-main); 
+        background: var(--score-bg);
+        padding: 2px 14px;
+        border-radius: 6px;
+        border: 1px solid var(--border-color);
+    }
+    .status { font-size: 0.7rem; color: var(--text-muted); margin-top: 6px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; }
+    .live-badge { 
+        color: var(--live-color); 
+        background: var(--live-bg); 
+        padding: 2px 6px; 
+        border-radius: 4px; 
+        animation: pulse 2s infinite; 
+    }
+ 
+    /* Chaveamento */
+    .bracket-container {
+        background: var(--card-bg); 
+        border: 1px solid var(--border-color); 
+        border-radius: 14px;
+        padding: 1.5rem; 
+        display: flex; 
+        justify-content: space-between; 
+        gap: 16px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+    }
+    .bracket-round { display: flex; flex-direction: column; justify-content: center; gap: 16px; width: 48%; }
+    .bracket-round-title { text-align: center; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; font-weight: 700; margin-bottom: 4px; }
+    .bracket-match { background: var(--bracket-match-bg); border: 1px solid var(--border-color); border-radius: 10px; display: flex; flex-direction: column; overflow: hidden; }
+    .round-semi .bracket-match { position: relative; }
+    .round-semi .bracket-match::after { content: ''; position: absolute; right: -16px; top: 50%; width: 16px; height: 1px; background-color: var(--border-color); }
+    .round-final .bracket-match::before { content: ''; position: absolute; left: -16px; top: 50%; width: 16px; height: 1px; background-color: var(--border-color); }
+    .bracket-team { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; font-size: 0.95rem; border-bottom: 1px solid var(--border-color); font-weight: 600; }
+    .bracket-team:last-child { border-bottom: none; }
+    .bracket-team.winner { color: var(--accent); background-color: rgba(56, 189, 248, 0.05); }
+    .b-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .b-score { color: var(--text-muted); font-family: 'Space Grotesk', sans-serif; }
+    /* Tabela de Classificação */
+    .ranking-container {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 14px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+    }
+ 
+    .ranking-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+    }
+ 
+    .ranking-table th {
+        color: var(--text-muted);
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        padding: 8px 12px;
+        border-bottom: 2px solid var(--border-color);
+        font-weight: 700;
+    }
+ 
+    .ranking-table td {
+        padding: 10px 12px;
+        border-bottom: 1px solid var(--border-color);
+        font-size: 0.95rem;
+        font-weight: 600;
+    }
+ 
+    .ranking-table tr:last-child td { border-bottom: none; }
+    .pos-col { width: 10%; font-family: 'Space Grotesk', sans-serif; text-align: center; color: var(--accent); }
+    .pts-col { width: 15%; text-align: right; font-family: 'Space Grotesk', sans-serif; }
+ 
+    .top-three { background-color: rgba(2, 132, 199, 0.01); }
+ 
+    .no-games { color: var(--text-muted); text-align: center; padding: 2rem; font-style: italic; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 14px; }
+ 
+    footer { text-align: center; padding: 2rem; border-top: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.8rem; margin-top: auto; background: var(--header-bg); }
+    footer span { color: var(--text-main); font-weight: 600; }
+ 
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body>
+<header>
+<div class="logo-intermatch">INTERMATCH</div>
+<div class="header-controls">
+<nav class="year-nav">
+<button class="nav-btn active" data-year="1">1º Ano</button>
+<button class="nav-btn" data-year="2">2º Ano</button>
+<button class="nav-btn" data-year="3">3º Ano</button>
+</nav>
+<button class="theme-toggle-btn" id="theme-toggle" title="Alternar Tema">☀️</button>
+</div>
+</header>
+<div class="filters">
+<button class="filter-btn active" data-sport="futebol-m">Futebol Masc.</button>
+<button class="filter-btn" data-sport="futebol-f">Futebol Fem.</button>
+<button class="filter-btn" data-sport="basquete">Basquete 3x3</button>
+<button class="filter-btn" data-sport="volei-m">Vôlei Masc.</button>
+<button class="filter-btn" data-sport="volei-f">Vôlei Fem.</button>
+</div>
+<div class="container">
+<main>
+<h2 class="section-title" id="titulo-jogos">Partidas - Futebol Masc.</h2>
+<div class="matches-grid" id="container-jogos"></div>
+</main>
+<div class="right-column">
+<section id="bracket-section">
+<h2 class="section-title">Chaveamento Final</h2>
+<div class="bracket-container" id="bracket-wrapper">
+<div class="bracket-round round-semi" id="bracket-semis"></div>
+<div class="bracket-round round-final">
+<div class="bracket-round-title">Grande Final</div>
+<div class="bracket-match" id="bracket-final"></div>
+</div>
+</div>
+</section>
+ 
+            <section>
+<h2 class="section-title">Classificação Geral por Ano</h2>
+<div class="ranking-container">
+<table class="ranking-table">
+<thead>
+<tr>
+<th style="text-align: center;">Pos</th>
+<th>Turma</th>
+<th style="text-align: right;">Pontos</th>
+</tr>
+</thead>
+<tbody id="tabela-ranking"></tbody>
+</table>
+</div>
+</section>
+</div>
+</div>
+<footer>
+        Desenvolvido pelo grupo: <span>João Benassi, Bryan Botelho, Matheus Mariz</span> e equipe.
+</footer>
+<script>
+        // Lógica de Alternância de Tema
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        themeToggleBtn.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            if (currentTheme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'light');
+                themeToggleBtn.innerText = '☀️';
+            } else {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                themeToggleBtn.innerText = '🌙';
+            }
+        });
+ 
+        // Banco de dados interno estruturado
+        const dadosInterclasse = {
+            '1': {
+                'futebol-m': {
+                    titulo: 'Futebol Masculino (1º Ano)',
+                    jogos: [
+                        { timeA: 'MMD 1', timeB: 'IOT 1', placarA: '2', placarB: '1', status: '● AO VIVO', isLive: true }
+                    ],
+                    chave: {
+                        semi1: { timeA: 'MMD 1', placarA: '2', timeB: 'IOT 1', placarB: '1', winner: 'A' },
+                        semi2: { timeA: 'MKT 1', placarA: '-', timeB: 'A Definir', placarB: '-', winner: null },
+                        final: { timeA: 'MMD 1', placarA: '-', timeB: 'A Definir', placarB: '-', winner: null }
+                    }
+                },
+                'futebol-f': null,
+                'basquete': {
+                    titulo: 'Basquete 3x3 (1º Ano)',
+                    jogos: [{ timeA: 'IOT 1', timeB: 'MKT 1', placarA: '11', placarB: '15', status: 'Finalizado', isLive: false }],
+                    chave: {
+                        semi1: { timeA: 'IOT 1', placarA: '11', timeB: 'MKT 1', placarB: '15', winner: 'B' },
+                        semi2: { timeA: 'MMD 1', placarA: '-', timeB: 'A Definir', placarB: '-', winner: null },
+                        final: { timeA: 'MKT 1', placarA: '-', timeB: 'A Definir', placarB: '-', winner: null }
+                    }
+                },
+                'volei-m': null, 'volei-f': null,
+                ranking: [
+                    { turma: 'MMD 1', pontos: 15 },
+                    { turma: 'MKT 1', pontos: 10 },
+                    { turma: 'IOT 1', pontos: 6 }
+                ]
+            },
+            '2': {
+                'futebol-m': {
+                    titulo: 'Futebol Masculino (2º Ano)',
+                    jogos: [{ timeA: 'IOT 2', timeB: 'MMD 2', placarA: '0', placarB: '3', status: 'Finalizado', isLive: false }],
+                    chave: {
+                        semi1: { timeA: 'IOT 2', placarA: '0', timeB: 'MMD 2', placarB: '3', winner: 'B' },
+                        semi2: { timeA: 'MKT 2', placarA: '-', timeB: 'A Definir', placarB: '-', winner: null },
+                        final: { timeA: 'MMD 2', placarA: '-', timeB: 'A Definir', placarB: '-', winner: null }
+                    }
+                },
+                'futebol-f': null, 'basquete': null, 'volei-m': null, 'volei-f': null,
+                ranking: [
+                    { turma: 'MMD 2', pontos: 18 },
+                    { turma: 'IOT 2', pontos: 12 },
+                    { turma: 'MKT 2', pontos: 4 }
+                ]
+            },
+            '3': {
+                'futebol-m': {
+                    titulo: 'Futebol Masculino (3º Ano)',
+                    jogos: [{ timeA: 'MMD 3', timeB: 'IOT 3', placarA: '4', placarB: '2', status: 'Finalizado', isLive: false }],
+                    chave: {
+                        semi1: { timeA: 'MMD 3', placarA: '4', timeB: 'IOT 3', placarB: '2', winner: 'A' },
+                        semi2: { timeA: 'IOT 3', placarA: '-', timeB: 'A Definir', placarB: '-', winner: null },
+                        final: { timeA: 'MMD 3', placarA: '-', timeB: 'A Definir', placarB: '-', winner: null }
+                    }
+                },
+                'futebol-f': null, 'basquete': null, 'volei-m': null, 'volei-f': null,
+                ranking: [
+                    { turma: 'MMD 3', pontos: 22 },
+                    { turma: 'IOT 3', pontos: 14 }
+                ]
+            }
+        };
+        let anoAtual = '1';
+        let esporteAtual = 'futebol-m';
+ 
+        function renderizarInterface() {
+            const anoDados = dadosInterclasse[anoAtual];
+            const dados = anoDados ? anoDados[esporteAtual] : null;
+ 
+            const containerJogos = document.getElementById('container-jogos');
+            const bracketSection = document.getElementById('bracket-section');
+            const tituloJogos = document.getElementById('titulo-jogos');
+ 
+            const tabelaRanking = document.getElementById('tabela-ranking');
+            tabelaRanking.innerHTML = '';
+            if (anoDados && anoDados.ranking) {
+                anoDados.ranking.forEach((posicao, index) => {
+                    const topClass = index < 3 ? 'top-three' : '';
+                    tabelaRanking.innerHTML += `
+<tr class="${topClass}">
+<td class="pos-col">${index + 1}º</td>
+<td>${posicao.turma}</td>
+<td class="pts-col">${posicao.pontos} pts</td>
+</tr>
+                    `;
+                });
+            }
+ 
+            if (!dados) {
+                const formatoNome = document.querySelector(`[data-sport="${esporteAtual}"]`).innerText;
+                tituloJogos.innerText = `Partidas - ${formatoNome}`;
+                containerJogos.innerHTML = '<div class="no-games">Nenhuma partida programada ou cadastrada para esta categoria.</div>';
+                bracketSection.style.display = 'none';
+                return;
+            }
+ 
+            bracketSection.style.display = 'block';
+            tituloJogos.innerText = dados.titulo;
+            containerJogos.innerHTML = '';
+            dados.jogos.forEach(jogo => {
+                const liveClass = jogo.isLive ? 'live-badge' : '';
+                containerJogos.innerHTML += `
+<div class="match-card">
+<span class="team">${jogo.timeA}</span>
+<div class="match-info">
+<span class="score">${jogo.placarA} x ${jogo.placarB}</span>
+<span class="status ${liveClass}">${jogo.status}</span>
+</div>
+<span class="team">${jogo.timeB}</span>
+</div>
+                `;
+            });
+            const bracketSemis = document.getElementById('bracket-semis');
+            const bracketFinal = document.getElementById('bracket-final');
+            const criarCardChave = (partida) => {
+                const classA = partida.winner === 'A' ? 'winner' : '';
+                const classB = partida.winner === 'B' ? 'winner' : '';
+                return `
+<div class="bracket-team ${classA}">
+<span class="b-name">${partida.timeA}</span>
+<span class="b-score">${partida.placarA}</span>
+</div>
+<div class="bracket-team ${classB}">
+<span class="b-name">${partida.timeB}</span>
+<span class="b-score">${partida.placarB}</span>
+</div>
+                `;
+            };
+            bracketSemis.innerHTML = `
+<div class="bracket-round-title">Semifinais</div>
+<div class="bracket-match">${criarCardChave(dados.chave.semi1)}</div>
+<div class="bracket-match">${criarCardChave(dados.chave.semi2)}</div>
+            `;
+            bracketFinal.innerHTML = criarCardChave(dados.chave.final);
+        }
+        const botoesAnos = document.querySelectorAll('.nav-btn');
+        botoesAnos.forEach(btn => {
+            btn.addEventListener('click', () => {
+                botoesAnos.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                anoAtual = btn.getAttribute('data-year');
+                renderizarInterface();
+            });
+        });
+ 
+        const botoesEsportes = document.querySelectorAll('.filter-btn');
+        botoesEsportes.forEach(btn => {
+            btn.addEventListener('click', () => {
+                botoesEsportes.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                esporteAtual = btn.getAttribute('data-sport');
+                renderizarInterface();
+            });
+        });
+        renderizarInterface();
+</script>
+</body>
+</html>
