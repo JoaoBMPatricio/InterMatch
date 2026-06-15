@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intermatch - Resultados do Interclasse</title>
+ 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+ 
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <div class="logo-intermatch">INTERMATCH</div>
+        <div class="header-controls">
+            <nav class="year-nav">
+                <button class="nav-btn active" data-year="1">1º Ano</button>
+                <button class="nav-btn" data-year="2">2º Ano</button>
+                <button class="nav-btn" data-year="3">3º Ano</button>
+            </nav>
+            <button class="theme-toggle-btn" id="theme-toggle" title="Alternar Tema">☀️</button>
+        </div>
+    </header>
+
+    <div class="filters">
+        <button class="filter-btn active" data-sport="futebol-m">Futebol Masc.</button>
+        <button class="filter-btn" data-sport="futebol-f">Futebol Fem.</button>
+        <button class="filter-btn" data-sport="basquete">Basquete 3x3</button>
+        <button class="filter-btn" data-sport="volei-m">Vôlei Masc.</button>
+        <button class="filter-btn" data-sport="volei-f">Vôlei Fem.</button>
+    </div>
+
+    <div class="container">
+        <main>
+            <h2 class="section-title" id="titulo-jogos">Partidas - Futebol Masc.</h2>
+            <div class="matches-grid" id="container-jogos"></div>
+        </main>
+
+        <div class="right-column">
+            <section id="bracket-section">
+                <h2 class="section-title">Chaveamento Final</h2>
+                <div class="bracket-container" id="bracket-wrapper">
+                    <div class="bracket-round round-semi" id="bracket-semis"></div>
+                    <div class="bracket-round round-final">
+                        <div class="bracket-round-title">Grande Final</div>
+                        <div class="bracket-match" id="bracket-final"></div>
+                    </div>
+                </div>
+            </section>
+ 
+            <section>
+                <h2 class="section-title">Classificação Geral por Ano</h2>
+                <div class="ranking-container">
+                    <table class="ranking-table">
+                        <thead>
+                            <tr>
+                                <th style="text-align: center;">Pos</th>
+                                <th>Turma</th>
+                                <th style="text-align: right;">Pontos</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabela-ranking"></tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <footer>
+        Desenvolvido pelo grupo: <span>João Benassi, Bryan Botelho, Matheus Mariz</span> e equipe.
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
