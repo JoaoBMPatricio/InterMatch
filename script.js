@@ -144,31 +144,38 @@ async function renderizarInterface() {
     `${esporteAtual} - ${anoAtual}º Ano`;
     containerJogos.innerHTML = '';
 
-    partidas.forEach(partida => {
+    const partidasFiltradas = partidas.filter(partida => {
+        const turmaA = partida.turmaA ?? "A definir";
+        const turmaB = partida.turmaB ?? "A definir";
 
-  containerJogos.innerHTML += `
-    <div class="match-card">
-      <span class="team">
-        ${partida.turmaA ?? "A definir"}
-      </span>
+        return !(turmaA === "A definir" && turmaB === "A definir");
+    });
 
-      <div class="match-info">
+    partidasFiltradas.forEach(partida => {
 
-        <span class="score">
-          ${partida.placarA ?? "-"}
-          x
-          ${partida.placarB ?? "-"}
+        containerJogos.innerHTML += `
+            <div class="match-card">
+                <span class="team">
+                    ${partida.turmaA ?? "A definir"}
+                </span>
+
+                <div class="match-info">
+
+                    <span class="score">
+                        ${partida.placarA ?? "-"}
+                        x
+                        ${partida.placarB ?? "-"}
+                    </span>
+
+                    <span class="status">
+                        ${partida.status}
+                    </span>
+
+                </div>
+
+        <span class="team">
+            ${partida.turmaB ?? "A definir"}
         </span>
-
-        <span class="status">
-          ${partida.status}
-        </span>
-
-      </div>
-
-      <span class="team">
-        ${partida.turmaB ?? "A definir"}
-      </span>
     </div>
   `;
 
