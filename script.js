@@ -182,7 +182,9 @@ botoesAnos.forEach(btn => {
     btn.addEventListener('click', () => {
         botoesAnos.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        anoAtual = btn.getAttribute('data-year');
+        anoAtual = Number(
+            btn.getAttribute('data-year')
+        );
         renderizarInterface();
     });
 });

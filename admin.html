@@ -1,0 +1,76 @@
+ <!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InterMatch Admin</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+    <div class="logo-intermatch">INTERMATCH ADMIN</div>
+</header>
+
+<div class="container">
+
+    <main style="width:100%;">
+
+        <h2 class="section-title">
+            Cadastro de Resultados
+        </h2>
+
+        <div class="ranking-container" style="padding:20px;">
+
+            <label>Ano</label>
+            <select id="ano">
+                <option value="1">1º Ano</option>
+                <option value="2">2º Ano</option>
+                <option value="3">3º Ano</option>
+            </select>
+
+            <br><br>
+
+            <label>Esporte</label>
+            <select id="esporte">
+                <option value="futebol-m">Futebol Masculino</option>
+                <option value="futebol-f">Futebol Feminino</option>
+                <option value="basquete">Basquete</option>
+                <option value="volei-m">Vôlei Masculino</option>
+                <option value="volei-f">Vôlei Feminino</option>
+            </select>
+
+            <br><br>
+
+            <label>Partida</label>
+            <select id="partida"></select>
+
+            <br><br>
+
+            <label>Placar Time A</label>
+            <input type="number" id="placarA">
+
+            <br><br>
+
+            <label>Placar Time B</label>
+            <input type="number" id="placarB">
+
+            <br><br>
+
+            <button id="salvar">
+                Salvar Resultado
+            </button>
+
+            <p id="mensagem"></p>
+
+        </div>
+
+    </main>
+
+</div>
+
+<script type="module" src="admin.js"></script>
+
+</body>
+</html>   
