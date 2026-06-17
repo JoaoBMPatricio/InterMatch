@@ -84,26 +84,6 @@ const dadosInterclasse = {
     }
 };
 
-async function carregarPartidaTeste() {
-
-  const referencia = doc(db, "interclasse", "dados");
-
-  const documento = await getDoc(referencia);
-
-  if (documento.exists()) {
-
-    console.log("Dados encontrados:");
-    console.log(documento.data());
-
-  } else {
-
-    console.log("Documento não encontrado");
-
-  }
-}
-
-carregarPartidaTeste();
-
 let anoAtual = '1';
 let esporteAtual = 'futebol-m';
 
