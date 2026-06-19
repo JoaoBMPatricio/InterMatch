@@ -3,8 +3,9 @@ import { db } from "./firebase.js";
 import {
   collection,
   getDocs,
+  getDoc,
   doc,
-  updateDoc
+  updateDoc,
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
 const selectAno = document.getElementById("ano");
@@ -22,42 +23,56 @@ const mensagem = document.getElementById("mensagem");
 // =====================
 
 async function carregarPartidas() {
+  const ano = Number(selectAno.value);
+  const esporte = selectEsporte.value;
 
-    const ano = Number(selectAno.value);
-    const esporte = selectEsporte.value;
+  const snapshot = await getDocs(
+    collection(db, "anos", `${ano}ano`, "esportes", esporte, "partidas"),
+  );
 
-    const snapshot = await getDocs(
-        collection(db, "partidas")
-    );
+  selectPartida.innerHTML = "";
 
-    selectPartida.innerHTML = "";
+  snapshot.forEach((documento) => {
+    const partida = documento.data();
 
-    snapshot.forEach((documento) => {
+    if (partida.status !== "encerrada" && partida.turmaA && partida.turmaB) {
+      const option = document.createElement("option");
 
-        const partida = documento.data();
+      option.value = JSON.stringify({
+        id: documento.id,
+        turmaA: partida.turmaA,
+        turmaB: partida.turmaB,
+      });
 
-        if (
-            partida.ano === ano &&
-            partida.esporte === esporte &&
-            partida.status !== "encerrada"
-        ) {
+      option.textContent = `${partida.turmaA ?? "A definir"} x ${
+        partida.turmaB ?? "A definir"
+      }`;
 
-            const option =
-                document.createElement("option");
+      selectPartida.appendChild(option);
+    }
+  });
+}
 
-            option.value = documento.id;
+async function avancarVencedor(ano, esporte, partida, vencedor) {
+  if (!partida.proximaPartida) {
+    return;
+  }
 
-            option.textContent =
-                `${partida.turmaA ?? "A definir"} x ${
-                    partida.turmaB ?? "A definir"
-                }`;
+  const proximaRef = doc(
+    db,
+    "anos",
+    `${ano}ano`,
+    "esportes",
+    esporte,
+    "partidas",
+    partida.proximaPartida,
+  );
 
-            selectPartida.appendChild(option);
+  const campoDestino = partida.posicaoChave % 2 === 1 ? "turmaA" : "turmaB";
 
-        }
-
-    });
-
+  await updateDoc(proximaRef, {
+    [campoDestino]: vencedor,
+  });
 }
 
 // =====================
@@ -65,83 +80,90 @@ async function carregarPartidas() {
 // =====================
 
 async function salvarResultado() {
+  const placarA = Number(inputPlacarA.value);
 
-    const idPartida =
-        selectPartida.value;
+  const placarB = Number(inputPlacarB.value);
 
-    const placarA =
-        Number(inputPlacarA.value);
+  if (isNaN(placarA) || isNaN(placarB)) {
+    mensagem.textContent = "Digite os dois placares.";
 
-    const placarB =
-        Number(inputPlacarB.value);
+    return;
+  }
 
-    if (
-        isNaN(placarA) ||
-        isNaN(placarB)
-    ) {
+  const dadosPartida = JSON.parse(selectPartida.value);
 
-        mensagem.textContent =
-            "Digite os dois placares.";
+  const turmaA = dadosPartida.turmaA;
 
-        return;
-    }
+  const turmaB = dadosPartida.turmaB;
 
-    const partes =
-        selectPartida.options[
-            selectPartida.selectedIndex
-        ].textContent.split(" x ");
+  const idPartida = dadosPartida.id;
 
-    const turmaA = partes[0];
-    const turmaB = partes[1];
+  let vencedor;
 
-    let vencedor;
-
-    if (placarA > placarB) {
-
-        vencedor = turmaA;
-
-    } else if (placarB > placarA) {
-
-        vencedor = turmaB;
-
-    } else {
-
-        mensagem.textContent =
-            "Empate. Registre o vencedor pelos pênaltis futuramente.";
-
-        return;
-    }
-
-    await updateDoc(
-        doc(db, "partidas", idPartida),
-        {
-            placarA,
-            placarB,
-            vencedor,
-            status: "encerrada"
-        }
-    );
-
+  if (placarA > placarB) {
+    vencedor = turmaA;
+  } else if (placarB > placarA) {
+    vencedor = turmaB;
+  } else {
     mensagem.textContent =
-        "Resultado salvo com sucesso.";
+      "Empate. Registre o vencedor pelos pênaltis futuramente.";
 
+    return;
+  }
+
+  const partidaRef = doc(
+    db,
+    "anos",
+    `${selectAno.value}ano`,
+    "esportes",
+    selectEsporte.value,
+    "partidas",
+    idPartida,
+  );
+
+  const partidaSnapshot = await getDoc(partidaRef);
+
+  const partida = partidaSnapshot.data();
+
+  await updateDoc(
+    doc(
+      db,
+      "anos",
+      `${selectAno.value}ano`,
+      "esportes",
+      selectEsporte.value,
+      "partidas",
+      idPartida,
+    ),
+    {
+      placarA,
+      placarB,
+      vencedor,
+      status: "encerrada",
+    },
+  );
+
+  await avancarVencedor(
+    selectAno.value,
+    selectEsporte.value,
+    partida,
+    vencedor,
+  );
+
+  mensagem.textContent = "Resultado salvo com sucesso.";
 }
+
+await carregarPartidas();
+
+inputPlacarA.value = "";
+inputPlacarB.value = "";
 
 // =====================
 
-selectAno.addEventListener(
-    "change",
-    carregarPartidas
-);
+selectAno.addEventListener("change", carregarPartidas);
 
-selectEsporte.addEventListener(
-    "change",
-    carregarPartidas
-);
+selectEsporte.addEventListener("change", carregarPartidas);
 
-botaoSalvar.addEventListener(
-    "click",
-    salvarResultado
-);
+botaoSalvar.addEventListener("click", salvarResultado);
 
 carregarPartidas();

@@ -1,110 +1,87 @@
-import { db} from "./firebase.js";
+import { db } from "./firebase.js";
 
 import {
   collection,
   getDocs,
   doc,
-  getDoc
+  getDoc,
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
 // BANCO DE DADOS
 async function buscarPartidas(ano, esporte) {
-
   const snapshot = await getDocs(
-    collection(db, "partidas")
+    collection(db, "anos", `${ano}ano`, "esportes", esporte, "partidas"),
   );
 
   const partidas = [];
 
-  snapshot.forEach((doc) => {
-
-    const dados = doc.data();
-
-    if (
-      dados.ano === ano &&
-      dados.esporte === esporte
-    ) {
-      partidas.push({
-        id: doc.id,
-        ...dados
-      });
-    }
-
+  snapshot.forEach((documento) => {
+    partidas.push({
+      id: documento.id,
+      ...documento.data(),
+    });
   });
 
-  partidas.sort(
-    (a, b) =>
-      a.posicaoChave - b.posicaoChave
-  );
+  partidas.sort((a, b) => {
+    if (a.rodada !== b.rodada) {
+      return a.rodada - b.rodada;
+    }
+
+    return a.posicaoChave - b.posicaoChave;
+  });
 
   return partidas;
 }
 
 // RANKING
 async function buscarRanking(ano) {
+  const snapshot = await getDoc(doc(db, "ranking", `${ano}ano`));
 
-    const snapshot = await getDoc(
-        doc(db, "ranking", `${ano}ano`)
-    );
+  if (!snapshot.exists()) {
+    return [];
+  }
 
-    if (!snapshot.exists()) {
-        return [];
-    }
+  const dados = snapshot.data();
 
-    const dados = snapshot.data();
-
-    return Object.entries(dados)
-        .map(([turma, pontos]) => ({
-            turma,
-            pontos
-        }))
-        .sort((a, b) => b.pontos - a.pontos);
-
+  return Object.entries(dados)
+    .map(([turma, pontos]) => ({
+      turma,
+      pontos,
+    }))
+    .sort((a, b) => b.pontos - a.pontos);
 }
 
 // Lógica de Alternância de Tema
-const themeToggleBtn = document.getElementById('theme-toggle');
-themeToggleBtn.addEventListener('click', () => {
-    const currentTheme = document.documentElement.getAttribute('data-theme');
-    if (currentTheme === 'dark') {
-        document.documentElement.setAttribute('data-theme', 'light');
-        themeToggleBtn.innerText = '☀️';
-    } else {
-        document.documentElement.setAttribute('data-theme', 'dark');
-        themeToggleBtn.innerText = '🌙';
-    }
+const themeToggleBtn = document.getElementById("theme-toggle");
+themeToggleBtn.addEventListener("click", () => {
+  const currentTheme = document.documentElement.getAttribute("data-theme");
+  if (currentTheme === "dark") {
+    document.documentElement.setAttribute("data-theme", "light");
+    themeToggleBtn.innerText = "☀️";
+  } else {
+    document.documentElement.setAttribute("data-theme", "dark");
+    themeToggleBtn.innerText = "🌙";
+  }
 });
 
 // Banco de dados interno estruturado
-
 
 let anoAtual = 1;
 let esporteAtual = "futebol-m";
 
 async function renderizarInterface() {
+  const partidas = await buscarPartidas(anoAtual, esporteAtual);
 
-    const partidas = await buscarPartidas(
-        anoAtual,
-        esporteAtual
-    );
+  const ranking = await buscarRanking(anoAtual);
 
-    const ranking = await buscarRanking(
-        anoAtual
-    );
+  const tabelaRanking = document.getElementById("tabela-ranking");
 
-    const tabelaRanking =
-        document.getElementById('tabela-ranking');
+  tabelaRanking.innerHTML = "";
 
-    tabelaRanking.innerHTML = '';
+  ranking.forEach((posicao, index) => {
+    const topClass = index < 3 ? "top-three" : "";
 
-    ranking.forEach((posicao, index) => {
-
-        const topClass =
-            index < 3
-                ? 'top-three'
-                : '';
-
-        tabelaRanking.innerHTML += `
+    tabelaRanking.innerHTML += `
             <tr class="${topClass}">
                 <td class="pos-col">
                     ${index + 1}º
@@ -119,41 +96,38 @@ async function renderizarInterface() {
                 </td>
             </tr>
         `;
+  });
 
-    });
+  const containerJogos = document.getElementById("container-jogos");
 
-    const containerJogos =
-        document.getElementById('container-jogos');
+  const bracketSection = document.getElementById("bracket-section");
 
-    const bracketSection =
-        document.getElementById('bracket-section');
+  const tituloJogos = document.getElementById("titulo-jogos");
 
-    const tituloJogos =
-        document.getElementById('titulo-jogos');
+  if (partidas.length === 0) {
+    const formatoNome = document.querySelector(
+      `[data-sport="${esporteAtual}"]`,
+    ).innerText;
+    tituloJogos.innerText = `Partidas - ${formatoNome}`;
+    containerJogos.innerHTML =
+      '<div class="no-games">Nenhuma partida programada ou cadastrada para esta categoria.</div>';
+    bracketSection.style.display = "none";
+    return;
+  }
 
-    if (partidas.length === 0) {
-        const formatoNome = document.querySelector(`[data-sport="${esporteAtual}"]`).innerText;
-        tituloJogos.innerText = `Partidas - ${formatoNome}`;
-        containerJogos.innerHTML = '<div class="no-games">Nenhuma partida programada ou cadastrada para esta categoria.</div>';
-        bracketSection.style.display = 'none';
-        return;
-    }
+  bracketSection.style.display = "block";
+  tituloJogos.innerText = `${esporteAtual} - ${anoAtual}º Ano`;
+  containerJogos.innerHTML = "";
 
-    bracketSection.style.display = 'block';
-    tituloJogos.innerText =
-    `${esporteAtual} - ${anoAtual}º Ano`;
-    containerJogos.innerHTML = '';
+  const partidasFiltradas = partidas.filter((partida) => {
+    const turmaA = partida.turmaA ?? "A definir";
+    const turmaB = partida.turmaB ?? "A definir";
 
-    const partidasFiltradas = partidas.filter(partida => {
-        const turmaA = partida.turmaA ?? "A definir";
-        const turmaB = partida.turmaB ?? "A definir";
+    return !(turmaA === "A definir" && turmaB === "A definir");
+  });
 
-        return !(turmaA === "A definir" && turmaB === "A definir");
-    });
-
-    partidasFiltradas.forEach(partida => {
-
-        containerJogos.innerHTML += `
+  partidasFiltradas.forEach((partida) => {
+    containerJogos.innerHTML += `
             <div class="match-card">
                 <span class="team">
                     ${partida.turmaA ?? "A definir"}
@@ -178,32 +152,29 @@ async function renderizarInterface() {
         </span>
     </div>
   `;
+  });
 
-});
-
-    bracketSection.style.display = "none";
+  bracketSection.style.display = "none";
 }
 
-const botoesAnos = document.querySelectorAll('.nav-btn');
-botoesAnos.forEach(btn => {
-    btn.addEventListener('click', () => {
-        botoesAnos.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        anoAtual = Number(
-            btn.getAttribute('data-year')
-        );
-        renderizarInterface();
-    });
+const botoesAnos = document.querySelectorAll(".nav-btn");
+botoesAnos.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    botoesAnos.forEach((b) => b.classList.remove("active"));
+    btn.classList.add("active");
+    anoAtual = Number(btn.getAttribute("data-year"));
+    renderizarInterface();
+  });
 });
 
-const botoesEsportes = document.querySelectorAll('.filter-btn');
-botoesEsportes.forEach(btn => {
-    btn.addEventListener('click', () => {
-        botoesEsportes.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        esporteAtual = btn.getAttribute('data-sport');
-        renderizarInterface();
-    });
+const botoesEsportes = document.querySelectorAll(".filter-btn");
+botoesEsportes.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    botoesEsportes.forEach((b) => b.classList.remove("active"));
+    btn.classList.add("active");
+    esporteAtual = btn.getAttribute("data-sport");
+    renderizarInterface();
+  });
 });
 
 // Inicializa a interface no primeiro carregamento
