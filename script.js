@@ -8,7 +8,6 @@ import {
   collectionGroup,
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
-// BANCO DE DADOS
 async function buscarPartidas(ano, esporte) {
   const snapshot = await getDocs(
     collection(db, "anos", `${ano}ano`, "esportes", esporte, "partidas"),
@@ -34,7 +33,6 @@ async function buscarPartidas(ano, esporte) {
   return partidas;
 }
 
-// RANKING
 async function buscarRanking(ano) {
   const snapshot = await getDoc(doc(db, "ranking", `${ano}ano`));
 
@@ -52,7 +50,7 @@ async function buscarRanking(ano) {
     .sort((a, b) => b.pontos - a.pontos);
 }
 
-// Lógica de Alternância de Tema
+
 const themeToggleBtn = document.getElementById("theme-toggle");
 themeToggleBtn.addEventListener("click", () => {
   const currentTheme = document.documentElement.getAttribute("data-theme");
@@ -65,10 +63,19 @@ themeToggleBtn.addEventListener("click", () => {
   }
 });
 
-// Banco de dados interno estruturado
+
 
 let anoAtual = 1;
 let esporteAtual = "futebol-m";
+
+function formatarDiaMes(dataString) {
+  if (!dataString) return "";
+  const partes = dataString.split("-");
+  if (partes.length === 3) {
+    return `${partes[2]}/${partes[1]}`;
+  }
+  return dataString;
+}
 
 async function renderizarInterface() {
   const partidas = await buscarPartidas(anoAtual, esporteAtual);
@@ -89,7 +96,7 @@ async function renderizarInterface() {
 
       return dataA - dataB;
     })
-    .slice(0,5);
+    .slice(0, 5);
 
   proximosContainer.innerHTML = "";
 
@@ -109,7 +116,7 @@ async function renderizarInterface() {
         </span>
 
         <span class="status">
-          ${jogo.data} - ${jogo.hora}
+          ${formatarDiaMes(jogo.data)} - ${jogo.hora}
         </span>
 
         <span class="status">
@@ -198,11 +205,10 @@ async function renderizarInterface() {
 
                     <div class="agenda-partida">
 
-                      ${partida.data ?? ""}
-
-                      ${partida.hora ?? ""}
-
-                      ${partida.local ?? ""}
+                      <span>${formatarDiaMes(partida.data) ?? ""}<span>
+                      <span>${" - "}<span>
+                      <span>${partida.hora ?? ""}<span>
+                      <span>${partida.local ?? ""}<span>
 
                   </div>
 
@@ -238,5 +244,4 @@ botoesEsportes.forEach((btn) => {
   });
 });
 
-// Inicializa a interface no primeiro carregamento
 renderizarInterface();
