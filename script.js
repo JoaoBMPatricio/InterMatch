@@ -5,6 +5,7 @@ import {
   getDocs,
   doc,
   getDoc,
+  collectionGroup,
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
 // BANCO DE DADOS
@@ -71,10 +72,60 @@ let esporteAtual = "futebol-m";
 
 async function renderizarInterface() {
   const partidas = await buscarPartidas(anoAtual, esporteAtual);
-
   const ranking = await buscarRanking(anoAtual);
 
   const tabelaRanking = document.getElementById("tabela-ranking");
+  const proximosContainer = document.getElementById("proximos-jogos");
+
+  const proximosJogos = partidas
+    .filter(
+      (partida) =>
+        partida.data && partida.hora && partida.status !== "encerrada",
+    )
+    .sort((a, b) => {
+      const dataA = new Date(`${a.data}T${a.hora}`);
+
+      const dataB = new Date(`${b.data}T${b.hora}`);
+
+      return dataA - dataB;
+    })
+    .slice(0,5);
+
+  proximosContainer.innerHTML = "";
+
+  proximosJogos.forEach((jogo) => {
+    proximosContainer.innerHTML += `
+
+    <div class="match-card">
+
+      <span class="team">
+        ${jogo.turmaA ?? "A definir"}
+      </span>
+
+      <div class="match-info">
+
+        <span class="score">
+          VS
+        </span>
+
+        <span class="status">
+          ${jogo.data} - ${jogo.hora}
+        </span>
+
+        <span class="status">
+          ${jogo.local ?? ""}
+        </span>
+
+      </div>
+
+      <span class="team">
+        ${jogo.turmaB ?? "A definir"}
+      </span>
+
+    </div>
+
+  `;
+  });
 
   tabelaRanking.innerHTML = "";
 
@@ -144,6 +195,16 @@ async function renderizarInterface() {
                     <span class="status">
                         ${partida.status}
                     </span>
+
+                    <div class="agenda-partida">
+
+                      ${partida.data ?? ""}
+
+                      ${partida.hora ?? ""}
+
+                      ${partida.local ?? ""}
+
+                  </div>
 
                 </div>
 

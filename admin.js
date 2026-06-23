@@ -6,6 +6,7 @@ import {
   getDoc,
   doc,
   updateDoc,
+  setDoc,
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
 const selectAno = document.getElementById("ano");
@@ -17,6 +18,11 @@ const inputPlacarB = document.getElementById("placarB");
 
 const botaoSalvar = document.getElementById("salvar");
 const mensagem = document.getElementById("mensagem");
+const botaoSalvarAgenda = document.getElementById("salvarAgenda");
+
+const inputData = document.getElementById("dataPartida");
+const inputHora = document.getElementById("horaPartida");
+const inputLocal = document.getElementById("localPartida");
 
 // =====================
 // CARREGAR PARTIDAS
@@ -44,13 +50,18 @@ async function carregarPartidas() {
         turmaB: partida.turmaB,
       });
 
-      option.textContent = `${partida.turmaA ?? "A definir"} x ${
-        partida.turmaB ?? "A definir"
-      }`;
+      option.textContent =
+        `[${partida.fase.toUpperCase()}] ` +
+        `${partida.turmaA ?? "A definir"} x ` +
+        `${partida.turmaB ?? "A definir"}`;
 
       selectPartida.appendChild(option);
     }
   });
+
+  if (selectPartida.options.length > 0) {
+    await carregarDadosPartida();
+  }
 }
 
 async function avancarVencedor(ano, esporte, partida, vencedor) {
@@ -75,9 +86,29 @@ async function avancarVencedor(ano, esporte, partida, vencedor) {
   });
 }
 
-// =====================
-// SALVAR RESULTADO
-// =====================
+async function atualizarRanking(ano, esporte, campeao, vice) {
+  const configSnapshot = await getDoc(doc(db, "config", "esportes"));
+
+  const config = configSnapshot.data();
+
+  const pontosCampeao = config[esporte].campeao;
+
+  const pontosVice = config[esporte].vice;
+
+  const rankingRef = doc(db, "ranking", `${ano}ano`);
+
+  const rankingSnapshot = await getDoc(rankingRef);
+
+  const rankingAtual = rankingSnapshot.exists() ? rankingSnapshot.data() : {};
+
+  rankingAtual[campeao] = (rankingAtual[campeao] || 0) + pontosCampeao;
+
+  rankingAtual[vice] = (rankingAtual[vice] || 0) + pontosVice;
+
+  await setDoc(rankingRef, rankingAtual);
+
+  console.log("Ranking atualizado!");
+}
 
 async function salvarResultado() {
   const placarA = Number(inputPlacarA.value);
@@ -150,7 +181,72 @@ async function salvarResultado() {
     vencedor,
   );
 
+  if (partida.fase === "final") {
+    const campeao = vencedor;
+
+    const vice = vencedor === turmaA ? turmaB : turmaA;
+
+    await atualizarRanking(selectAno.value, selectEsporte.value, campeao, vice);
+  }
+
   mensagem.textContent = "Resultado salvo com sucesso.";
+}
+
+async function salvarAgenda() {
+  const dadosPartida = JSON.parse(selectPartida.value);
+
+  const idPartida = dadosPartida.id;
+
+  await updateDoc(
+    doc(
+      db,
+      "anos",
+      `${selectAno.value}ano`,
+      "esportes",
+      selectEsporte.value,
+      "partidas",
+      idPartida,
+    ),
+    {
+      data: inputData.value,
+      hora: inputHora.value,
+      local: inputLocal.value,
+    },
+  );
+
+  mensagem.textContent = "Agenda salva com sucesso.";
+}
+
+async function carregarDadosPartida() {
+  if (!selectPartida.value) {
+    return;
+  }
+
+  const dadosPartida = JSON.parse(selectPartida.value);
+
+  const partidaRef = doc(
+    db,
+    "anos",
+    `${selectAno.value}ano`,
+    "esportes",
+    selectEsporte.value,
+    "partidas",
+    dadosPartida.id,
+  );
+
+  const snapshot = await getDoc(partidaRef);
+
+  const partida = snapshot.data();
+
+  inputPlacarA.value = partida.placarA ?? "";
+
+  inputPlacarB.value = partida.placarB ?? "";
+
+  inputData.value = partida.data ?? "";
+
+  inputHora.value = partida.hora ?? "";
+
+  inputLocal.value = partida.local ?? "";
 }
 
 await carregarPartidas();
@@ -167,3 +263,7 @@ selectEsporte.addEventListener("change", carregarPartidas);
 botaoSalvar.addEventListener("click", salvarResultado);
 
 carregarPartidas();
+
+botaoSalvarAgenda.addEventListener("click", salvarAgenda);
+
+selectPartida.addEventListener("change", carregarDadosPartida);

@@ -1,82 +1,93 @@
- <!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>InterMatch Admin</title>
 
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <div class="logo-intermatch">INTERMATCH ADMIN</div>
+    </header>
 
-<header>
-    <div class="logo-intermatch">INTERMATCH ADMIN</div>
-</header>
+    <div class="container">
+      <main style="width: 100%">
+        <h2 class="section-title">Cadastro de Resultados</h2>
 
-<div class="container">
+        <div class="ranking-container" style="padding: 20px">
+          <label>Ano</label>
+          <select id="ano">
+            <option value="1">1º Ano</option>
+            <option value="2">2º Ano</option>
+            <option value="3">3º Ano</option>
+          </select>
 
-    <main style="width:100%;">
+          <br /><br />
 
-        <h2 class="section-title">
-            Cadastro de Resultados
-        </h2>
+          <label>Esporte</label>
+          <select id="esporte">
+            <option value="futebol-m">Futebol Masculino</option>
+            <option value="futebol-f">Futebol Feminino</option>
+            <option value="basquete">Basquete</option>
+            <option value="volei-m">Vôlei Masculino</option>
+            <option value="volei-f">Vôlei Feminino</option>
+          </select>
 
-        <div class="ranking-container" style="padding:20px;">
+          <br /><br />
 
-            <label>Ano</label>
-            <select id="ano">
-                <option value="1">1º Ano</option>
-                <option value="2">2º Ano</option>
-                <option value="3">3º Ano</option>
-            </select>
+          <label>Partida</label>
+          <select id="partida"></select>
 
-            <br><br>
+          <br /><br />
 
-            <label>Esporte</label>
-            <select id="esporte">
-                <option value="futebol-m">Futebol Masculino</option>
-                <option value="futebol-f">Futebol Feminino</option>
-                <option value="basquete">Basquete</option>
-                <option value="volei-m">Vôlei Masculino</option>
-                <option value="volei-f">Vôlei Feminino</option>
-            </select>
+          <label>Placar Time A</label>
+          <input type="number" id="placarA" />
 
-            <br><br>
+          <label>Placar Time B</label>
+          <input type="number" id="placarB" />
 
-            <label>Partida</label>
-            <select id="partida"></select>
+          <br /><br />
 
-            <br><br>
+          <label>Pênaltis Time A</label>
+          <input type="number" id="penaltisA" />
 
-            <label>Placar Time A</label>
-            <input type="number" id="placarA">
+          <label>Pênaltis Time B</label>
+          <input type="number" id="penaltisB" />
 
-            <br><br>
+          <br /><br />
 
-            <label>Placar Time B</label>
-            <input type="number" id="placarB">
+          <button id="salvar">Salvar Resultado</button>
 
-            <br><br>
+          <br /><br />
 
-            <button id="salvar">
-                Salvar Resultado
-            </button>
+          <label>Data</label>
+          <input type="date" id="dataPartida" />
 
-            <p id="mensagem"></p>
+          <br /><br />
 
+          <label>Hora</label>
+          <input type="time" id="horaPartida" />
+
+          <br /><br />
+
+          <label>Local</label>
+          <input type="text" id="localPartida" placeholder="Ex: Quadra 1" />
+
+          <br /><br />
+
+          <button id="salvarAgenda">Salvar Data/Hora/Local</button>
+
+          <br /><br />
+
+          
+
+          <p id="mensagem"></p>
         </div>
+      </main>
+    </div>
 
-    </main>
-
-</div>
-
-<label>Pênaltis Time A</label>
-<input type="number" id="penaltisA">
-
-<label>Pênaltis Time B</label>
-<input type="number" id="penaltisB">
-
-<script type="module" src="admin.js"></script>
-
-</body>
-</html>   
+    <script type="module" src="admin.js"></script>
+  </body>
+</html>
