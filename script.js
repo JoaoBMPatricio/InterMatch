@@ -544,6 +544,91 @@ function desenharLinhasChaveamento(config) {
   bracket.appendChild(svg);
 }
 
+function ativarArrasteHorizontal(elemento) {
+  let arrastando = false;
+  let inicioX = 0;
+  let inicioY = 0;
+  let scrollInicial = 0;
+  let toqueHorizontal = false;
+
+  elemento.addEventListener("pointerdown", (evento) => {
+    if (elemento.scrollWidth <= elemento.clientWidth) return;
+
+    arrastando = true;
+    inicioX = evento.clientX;
+    inicioY = evento.clientY;
+    scrollInicial = elemento.scrollLeft;
+    elemento.classList.add("is-dragging");
+    elemento.setPointerCapture(evento.pointerId);
+  });
+
+  elemento.addEventListener("pointermove", (evento) => {
+    if (!arrastando) return;
+
+    const distanciaX = evento.clientX - inicioX;
+    const distanciaY = evento.clientY - inicioY;
+
+    if (Math.abs(distanciaX) > Math.abs(distanciaY)) {
+      evento.preventDefault();
+      elemento.scrollLeft = scrollInicial - distanciaX;
+    }
+  });
+
+  function encerrarArraste(evento) {
+    if (!arrastando) return;
+
+    arrastando = false;
+    elemento.classList.remove("is-dragging");
+
+    if (elemento.hasPointerCapture(evento.pointerId)) {
+      elemento.releasePointerCapture(evento.pointerId);
+    }
+  }
+
+  elemento.addEventListener("pointerup", encerrarArraste);
+  elemento.addEventListener("pointercancel", encerrarArraste);
+  elemento.addEventListener("pointerleave", encerrarArraste);
+
+  elemento.addEventListener(
+    "touchstart",
+    (evento) => {
+      if (elemento.scrollWidth <= elemento.clientWidth) return;
+
+      const toque = evento.touches[0];
+      inicioX = toque.clientX;
+      inicioY = toque.clientY;
+      scrollInicial = elemento.scrollLeft;
+      toqueHorizontal = false;
+    },
+    { passive: true },
+  );
+
+  elemento.addEventListener(
+    "touchmove",
+    (evento) => {
+      if (elemento.scrollWidth <= elemento.clientWidth) return;
+
+      const toque = evento.touches[0];
+      const distanciaX = toque.clientX - inicioX;
+      const distanciaY = toque.clientY - inicioY;
+
+      if (!toqueHorizontal) {
+        toqueHorizontal = Math.abs(distanciaX) > Math.abs(distanciaY);
+      }
+
+      if (toqueHorizontal) {
+        evento.preventDefault();
+        elemento.scrollLeft = scrollInicial - distanciaX;
+      }
+    },
+    { passive: false },
+  );
+
+  elemento.addEventListener("touchend", () => {
+    toqueHorizontal = false;
+  });
+}
+
 const themeToggleBtn = document.getElementById("theme-toggle");
 themeToggleBtn.addEventListener("click", () => {
   const currentTheme = document.documentElement.getAttribute("data-theme");
@@ -574,5 +659,7 @@ document.querySelectorAll(".filter-btn").forEach((btn) => {
     renderizarInterface();
   });
 });
+
+ativarArrasteHorizontal(document.getElementById("bracket-wrapper"));
 
 renderizarInterface();
