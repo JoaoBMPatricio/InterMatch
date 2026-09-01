@@ -388,8 +388,23 @@ function renderizarChaveamento(partidas) {
   const cardWidth = mobile ? 124 : 146;
   const cardHeight = mobile ? 44 : 48;
   const colWidth = mobile ? 136 : 168;
-  const baseVertical = mobile ? 42 : 48;
+  const innerPairGap = mobile ? 2 : 2;
+  const groupGap = mobile ? 12 : 16;
   const titleOffset = 28;
+  const leafStep = cardHeight + innerPairGap;
+  const leafCenter = (index) =>
+    titleOffset +
+    index * leafStep +
+    Math.floor(index / 2) * groupGap +
+    cardHeight / 2;
+  const calcularY = (rodada, index) => {
+    const grupo = Math.pow(2, rodada - 1);
+    const primeiro = index * grupo;
+    const ultimo = primeiro + grupo - 1;
+    const centro = (leafCenter(primeiro) + leafCenter(ultimo)) / 2;
+
+    return centro - cardHeight / 2;
+  };
 
   const bracket = document.createElement("div");
   bracket.className = "bracket-canvas";
@@ -416,10 +431,7 @@ function renderizarChaveamento(partidas) {
 
     partidasRodada.forEach((partida, index) => {
       const x = (rodada - 1) * colWidth;
-      const y =
-        titleOffset +
-        (Math.pow(2, rodada - 1) - 1) * (baseVertical / 2) +
-        index * baseVertical * Math.pow(2, rodada - 1);
+      const y = calcularY(rodada, index);
 
       maxY = Math.max(maxY, y);
 
@@ -441,8 +453,7 @@ function renderizarChaveamento(partidas) {
     cardWidth,
     cardHeight,
     colWidth,
-    baseVertical,
-    titleOffset,
+    calcularY,
     mobile,
     maxY,
   });
@@ -493,8 +504,7 @@ function desenharLinhasChaveamento(config) {
     cardWidth,
     cardHeight,
     colWidth,
-    baseVertical,
-    titleOffset,
+    calcularY,
     mobile,
     maxY,
   } = config;
@@ -512,17 +522,9 @@ function desenharLinhasChaveamento(config) {
     atual.sort(ordenarPartidas).forEach((partida, index) => {
       const parentIndex = Math.floor(index / 2);
       const x1 = (rodada - 1) * colWidth + cardWidth;
-      const y1 =
-        titleOffset +
-        (Math.pow(2, rodada - 1) - 1) * (baseVertical / 2) +
-        index * baseVertical * Math.pow(2, rodada - 1) +
-        cardHeight / 2;
+      const y1 = calcularY(rodada, index) + cardHeight / 2;
       const x2 = rodada * colWidth + 2;
-      const y2 =
-        titleOffset +
-        (Math.pow(2, rodada) - 1) * (baseVertical / 2) +
-        parentIndex * baseVertical * Math.pow(2, rodada) +
-        cardHeight / 2;
+      const y2 = calcularY(rodada + 1, parentIndex) + cardHeight / 2;
       const path = document.createElementNS(
         "http://www.w3.org/2000/svg",
         "path",
