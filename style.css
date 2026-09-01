@@ -810,109 +810,229 @@ footer span {
 }
 
 @media (max-width: 768px) {
+    body {
+        background: var(--panel-bg);
+    }
+
     header {
-        padding: 0.75rem 1rem;
-        align-items: flex-start;
+        padding: 0.7rem 0.85rem;
+        align-items: center;
+        gap: 0.75rem;
     }
 
     .header-controls {
-        width: 100%;
+        min-width: 0;
         justify-content: flex-end;
+        flex: 1;
     }
 
     .year-nav {
         flex: 1;
+        min-width: 0;
+        border-radius: 8px;
     }
 
     .nav-btn {
         flex: 1;
-        padding: 7px 8px;
-        font-size: 0.78rem;
+        padding: 7px 6px;
+        font-size: 0.74rem;
+        white-space: nowrap;
     }
 
     .theme-toggle-btn {
-        width: 36px;
-        height: 36px;
+        width: 34px;
+        height: 34px;
+        border-radius: 8px;
+        flex: 0 0 34px;
     }
 
     .filters {
         justify-content: flex-start;
         flex-wrap: nowrap;
         overflow-x: auto;
-        margin: 1rem auto;
-        padding: 0 1rem 4px;
+        margin: 0.8rem auto 0.65rem;
+        padding: 0 0.85rem 4px;
         width: 100%;
+        gap: 8px;
+        scrollbar-width: none;
+    }
+
+    .filters::-webkit-scrollbar,
+    .phase-tabs::-webkit-scrollbar,
+    .scoreboard::-webkit-scrollbar {
+        display: none;
     }
 
     .filter-btn {
         flex: 0 0 auto;
-        padding: 8px 12px;
-        font-size: 0.78rem;
+        padding: 8px 11px;
+        font-size: 0.76rem;
+        border-radius: 999px;
+        box-shadow: none;
     }
 
     .scoreboard {
-        width: calc(100% - 2rem);
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        margin-bottom: 1.25rem;
+        width: 100%;
+        display: flex;
+        overflow-x: auto;
+        gap: 8px;
+        padding: 0 0.85rem 4px;
+        margin-bottom: 1rem;
+        scrollbar-width: none;
     }
 
-    .scoreboard-item:first-child {
-        grid-column: 1 / -1;
+    .scoreboard-item {
+        flex: 0 0 132px;
+        padding: 0.75rem;
+        box-shadow: none;
+    }
+
+    .scoreboard-item:first-child,
+    .scoreboard-item:last-child {
+        flex-basis: 168px;
+    }
+
+    .metric-label {
+        font-size: 0.62rem;
+        margin-bottom: 4px;
+    }
+
+    .scoreboard-item strong {
+        font-size: 0.96rem;
     }
 
     .container {
-        padding: 0 1rem;
-        gap: 1.5rem;
+        padding: 0 0.85rem;
+        gap: 1.25rem;
     }
 
-    .featured-match,
-    .match-tools {
-        align-items: stretch;
-        flex-direction: column;
+    .featured-match {
+        padding: 0.85rem;
+        margin-bottom: 1rem;
+        align-items: center;
+    }
+
+    .featured-copy {
+        gap: 2px;
+    }
+
+    .featured-copy strong {
+        font-size: 1.05rem;
+    }
+
+    .featured-copy span:last-child {
+        font-size: 0.76rem;
     }
 
     .featured-action {
+        width: auto;
+        flex: 0 0 auto;
+        padding: 9px 11px;
+        font-size: 0.76rem;
+    }
+
+    .match-tools {
+        align-items: stretch;
+        display: grid;
+        grid-template-columns: minmax(118px, 0.42fr) minmax(0, 1fr);
+        gap: 8px;
+        margin-bottom: 0.85rem;
+    }
+
+    #busca-turma {
         width: 100%;
+        flex: 0 1 auto;
+        min-width: 0;
+        height: 38px;
+        padding: 8px 10px;
+        font-size: 0.8rem;
     }
 
     .phase-tabs {
         width: 100%;
+        gap: 5px;
+        padding-bottom: 0;
+        scrollbar-width: none;
+    }
+
+    .phase-btn {
+        padding: 8px 10px;
+        font-size: 0.68rem;
+        border-radius: 999px;
     }
 
     .section-heading {
-        align-items: flex-start;
-        flex-direction: column;
-        gap: 4px;
+        align-items: center;
+        flex-direction: row;
+        gap: 0.75rem;
+        margin-bottom: 0.75rem;
     }
 
     .section-note {
-        text-align: left;
+        text-align: right;
+        font-size: 0.68rem;
+        line-height: 1.25;
     }
 
     .section-title {
-        font-size: 1.05rem;
+        font-size: 0.98rem;
+        min-width: max-content;
+    }
+
+    .section-title::before {
+        height: 14px;
     }
 
     .match-card,
     .bye-card {
-        grid-template-columns: minmax(0, 1fr);
-        gap: 0.75rem;
-        padding: 0.9rem;
+        grid-template-columns: minmax(0, 1fr) 84px minmax(0, 1fr);
+        gap: 0.55rem;
+        padding: 0.75rem;
+        box-shadow: none;
     }
 
     .team,
     .team:first-child,
+    .team:last-child {
+        font-size: 0.82rem;
+        line-height: 1.2;
+    }
+
+    .team:first-child {
+        text-align: right;
+    }
+
     .team:last-child,
     .team.muted {
-        text-align: center;
+        text-align: left;
     }
 
     .score {
-        font-size: 1.18rem;
+        min-width: 64px;
+        font-size: 1rem;
+        padding: 4px 7px;
+    }
+
+    .status-badge {
+        margin-top: 5px;
+        padding: 3px 6px;
+        font-size: 0.56rem;
+    }
+
+    .match-phase {
+        font-size: 0.56rem;
+        margin-bottom: 4px;
+    }
+
+    .agenda-partida {
+        margin-top: 5px;
+        font-size: 0.62rem;
+        line-height: 1.25;
     }
 
     .bracket-container {
         padding: 10px;
+        box-shadow: none;
     }
 
     .absolute-match,
@@ -931,23 +1051,115 @@ footer span {
     }
 
     .ranking-container {
-        padding: 0.75rem;
+        padding: 0.65rem;
+        box-shadow: none;
     }
 
     .ranking-table td,
     .ranking-table th {
-        padding: 8px 7px;
-        font-size: 0.78rem;
+        padding: 8px 6px;
+        font-size: 0.76rem;
+    }
+
+    .modal-backdrop {
+        align-items: flex-end;
+        padding: 0;
+    }
+
+    .match-modal {
+        width: 100%;
+        border-radius: 14px 14px 0 0;
+        padding: 1rem;
+    }
+
+    .modal-score {
+        font-size: 1.45rem;
+        padding: 0.75rem;
     }
 }
 
 @media (max-width: 520px) {
     header {
+        align-items: stretch;
         flex-direction: column;
+        gap: 0.55rem;
     }
 
-    .scoreboard {
-        grid-template-columns: 1fr 1fr;
+    .logo-intermatch {
+        font-size: 1.2rem;
+        line-height: 1;
+        text-align: center;
+    }
+
+    .header-controls {
+        width: 100%;
+    }
+
+    .year-nav {
+        max-width: none;
+    }
+
+    .nav-btn {
+        font-size: 0.72rem;
+    }
+
+    .match-tools {
+        grid-template-columns: minmax(104px, 0.38fr) minmax(0, 1fr);
+    }
+
+    #busca-turma {
+        font-size: 0.75rem;
+    }
+
+    .featured-match {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+    }
+
+    .featured-action {
+        padding: 8px 9px;
+    }
+
+    .section-heading {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 3px;
+    }
+
+    .section-note {
+        text-align: left;
+    }
+
+    .matches-grid {
+        gap: 8px;
+    }
+
+    .match-card,
+    .bye-card {
+        grid-template-columns: minmax(0, 1fr) 96px minmax(0, 1fr);
+        gap: 0.45rem;
+        padding: 0.68rem;
+    }
+
+    .team,
+    .team:first-child,
+    .team:last-child {
+        font-size: 0.76rem;
+    }
+
+    .score {
+        min-width: 58px;
+        font-size: 0.9rem;
+        padding: 4px 5px;
+    }
+
+    .status-badge {
+        font-size: 0.5rem;
+    }
+
+    .ranking-table td,
+    .ranking-table th {
+        font-size: 0.72rem;
     }
 }
 
