@@ -385,11 +385,11 @@ function renderizarChaveamento(partidas) {
   }
 
   const mobile = window.innerWidth <= 768;
-  const cardWidth = mobile ? 132 : 172;
-  const cardHeight = mobile ? 58 : 66;
-  const colWidth = mobile ? 150 : 222;
-  const baseVertical = mobile ? 54 : 132;
-  const titleOffset = 30;
+  const cardWidth = mobile ? 124 : 146;
+  const cardHeight = mobile ? 44 : 48;
+  const colWidth = mobile ? 136 : 168;
+  const baseVertical = mobile ? 42 : 48;
+  const titleOffset = 28;
 
   const bracket = document.createElement("div");
   bracket.className = "bracket-canvas";
