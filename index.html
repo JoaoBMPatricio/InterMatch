@@ -57,10 +57,18 @@
 
     <div class="container">
         <main>
+            <section class="featured-match" id="partida-destaque"></section>
+
             <div class="section-heading">
                 <h2 class="section-title" id="titulo-jogos">Partidas</h2>
                 <span class="section-note" id="nota-jogos"></span>
             </div>
+
+            <div class="match-tools">
+                <input type="search" id="busca-turma" placeholder="Buscar turma" aria-label="Buscar turma">
+                <div class="phase-tabs" id="filtros-fase" aria-label="Filtrar por fase"></div>
+            </div>
+
             <div class="matches-grid" id="container-jogos"></div>
         </main>
 
@@ -100,6 +108,16 @@
                 </div>
             </section>
         </div>
+    </div>
+
+    <div class="modal-backdrop" id="modal-partida" aria-hidden="true">
+        <article class="match-modal" role="dialog" aria-modal="true" aria-labelledby="modal-titulo">
+            <button class="modal-close" id="fechar-modal" aria-label="Fechar detalhes">×</button>
+            <span class="modal-kicker" id="modal-fase"></span>
+            <h2 id="modal-titulo"></h2>
+            <div class="modal-score" id="modal-placar"></div>
+            <div class="modal-details" id="modal-detalhes"></div>
+        </article>
     </div>
 
     <footer>

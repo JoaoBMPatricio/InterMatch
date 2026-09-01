@@ -15,6 +15,26 @@ const esportes = {
   "volei-f": "Vôlei Fem.",
 };
 
+const nomesFase = {
+  "32-avos": "32-Avos",
+  "16-avos": "16-Avos",
+  oitavas: "Oitavas",
+  quartas: "Quartas",
+  semifinal: "Semifinal",
+  final: "Final",
+  "mata-mata": "Mata-Mata",
+};
+
+const ordemFases = [
+  "todos",
+  "32-avos",
+  "16-avos",
+  "oitavas",
+  "quartas",
+  "semifinal",
+  "final",
+];
+
 const anos = [1, 2, 3];
 const ordemInicial = [
   { ano: 3, esporte: "futebol-m" },
@@ -30,6 +50,9 @@ const ordemInicial = [
 let anoAtual = 1;
 let esporteAtual = "futebol-m";
 let primeiraCarga = true;
+let filtroFaseAtual = "todos";
+let termoBusca = "";
+let partidasAtuais = [];
 
 async function buscarPartidas(ano, esporte) {
   const snapshot = await getDocs(
@@ -98,6 +121,10 @@ function nomeEsporteAtual() {
   return esportes[esporteAtual] ?? esporteAtual;
 }
 
+function nomeFase(partida) {
+  return nomesFase[partida.fase] ?? `Rodada ${partida.rodada ?? "-"}`;
+}
+
 function obterTurmaBye(partida) {
   if (!partida.bye) return null;
   return partida.turmaA || partida.turmaB || partida.vencedor || null;
@@ -144,6 +171,14 @@ function obterAgenda(partida) {
   const dataHora = [data, hora].filter(Boolean).join(" - ");
 
   return [dataHora, local].filter(Boolean).join(" • ");
+}
+
+function partidaContemTurma(partida, busca) {
+  if (!busca) return true;
+
+  return [partida.turmaA, partida.turmaB, partida.vencedor]
+    .filter(Boolean)
+    .some((turma) => turma.toLowerCase().includes(busca));
 }
 
 async function encontrarCategoriaInicial() {
@@ -205,23 +240,12 @@ async function renderizarInterface() {
 
     const partidas = await buscarPartidas(anoAtual, esporteAtual);
     const ranking = await buscarRanking(anoAtual);
-    const proximosJogos = partidas
-      .filter(
-        (partida) =>
-          ehPartidaReal(partida) &&
-          partida.data &&
-          partida.hora &&
-          partida.status !== "encerrada",
-      )
-      .sort((a, b) => {
-        const dataA = new Date(`${a.data}T${a.hora}`);
-        const dataB = new Date(`${b.data}T${b.hora}`);
+    const proximosJogos = obterProximosJogos(partidas);
 
-        return dataA - dataB;
-      })
-      .slice(0, 5);
-
+    partidasAtuais = partidas;
     atualizarMetricas(partidas, ranking, proximosJogos);
+    renderizarPartidaDestaque(proximosJogos[0]);
+    renderizarFiltrosFase(partidas);
     renderizarChaveamento(partidas);
     renderizarProximosJogos(proximosJogos, proximosContainer);
     renderizarRanking(ranking, tabelaRanking, notaRanking);
@@ -238,12 +262,11 @@ async function renderizarInterface() {
 
     bracketSection.style.display = "block";
     tituloJogos.innerText = `${nomeEsporteAtual()} - ${anoAtual}º Ano`;
-    notaJogos.innerText = `${partidas.filter(ehPartidaReal).length} jogos definidos`;
     notaProximos.innerText = proximosJogos.length
       ? `${proximosJogos.length} na agenda`
       : "Sem jogos agendados";
 
-    renderizarPartidas(partidas, containerJogos);
+    renderizarPartidas(partidas, containerJogos, notaJogos);
   } catch (erro) {
     console.error(erro);
     tituloJogos.innerText = "Não foi possível carregar os jogos";
@@ -254,6 +277,84 @@ async function renderizarInterface() {
     tabelaRanking.innerHTML = "";
     bracketSection.style.display = "none";
   }
+}
+
+function obterProximosJogos(partidas) {
+  return partidas
+    .filter(
+      (partida) =>
+        ehPartidaReal(partida) &&
+        partida.data &&
+        partida.hora &&
+        partida.status !== "encerrada",
+    )
+    .sort((a, b) => {
+      const dataA = new Date(`${a.data}T${a.hora}`);
+      const dataB = new Date(`${b.data}T${b.hora}`);
+
+      return dataA - dataB;
+    })
+    .slice(0, 5);
+}
+
+function renderizarPartidaDestaque(partida) {
+  const destaque = document.getElementById("partida-destaque");
+
+  if (!partida) {
+    destaque.innerHTML = `
+      <div class="featured-copy">
+        <span class="featured-label">Próxima partida</span>
+        <strong>Nenhum jogo agendado</strong>
+      </div>
+    `;
+    return;
+  }
+
+  destaque.innerHTML = `
+    <div class="featured-copy">
+      <span class="featured-label">Próxima partida</span>
+      <strong>${textoSeguro(partida.turmaA)} x ${textoSeguro(partida.turmaB)}</strong>
+      <span>${textoSeguro(obterAgenda(partida))}</span>
+    </div>
+    <button class="featured-action" data-match-id="${textoSeguro(partida.id)}">Ver detalhes</button>
+  `;
+}
+
+function renderizarFiltrosFase(partidas) {
+  const container = document.getElementById("filtros-fase");
+  const fasesPresentes = new Set(
+    partidas
+      .map((partida) => partida.fase)
+      .filter(Boolean),
+  );
+  const fases = ordemFases.filter(
+    (fase) => fase === "todos" || fasesPresentes.has(fase),
+  );
+
+  if (filtroFaseAtual !== "todos" && !fasesPresentes.has(filtroFaseAtual)) {
+    filtroFaseAtual = "todos";
+  }
+
+  container.innerHTML = fases
+    .map((fase) => {
+      const label = fase === "todos" ? "Todos" : nomesFase[fase] ?? fase;
+      const ativo = fase === filtroFaseAtual ? "active" : "";
+
+      return `<button class="phase-btn ${ativo}" data-phase="${textoSeguro(fase)}">${textoSeguro(label)}</button>`;
+    })
+    .join("");
+}
+
+function aplicarFiltrosPartidas(partidas) {
+  const busca = termoBusca.trim().toLowerCase();
+
+  return partidas.filter((partida) => {
+    const visivel = ehPartidaReal(partida) || obterTurmaBye(partida);
+    const faseOk = filtroFaseAtual === "todos" || partida.fase === filtroFaseAtual;
+    const buscaOk = partidaContemTurma(partida, busca);
+
+    return visivel && faseOk && buscaOk;
+  });
 }
 
 function renderizarProximosJogos(proximosJogos, container) {
@@ -302,16 +403,23 @@ function renderizarRanking(ranking, tabelaRanking, notaRanking) {
   });
 }
 
-function renderizarPartidas(partidas, containerJogos) {
+function renderizarPartidas(partidas, containerJogos, notaJogos) {
   containerJogos.innerHTML = "";
 
-  const partidasVisiveis = partidas.filter(
-    (partida) => ehPartidaReal(partida) || obterTurmaBye(partida),
-  );
+  const partidasVisiveis = aplicarFiltrosPartidas(partidas);
+  const totalJogos = partidas.filter(ehPartidaReal).length;
+  const descricaoBusca = termoBusca ? ` • busca: ${termoBusca}` : "";
+  const descricaoFase =
+    filtroFaseAtual === "todos"
+      ? ""
+      : ` • ${nomesFase[filtroFaseAtual] ?? filtroFaseAtual}`;
+
+  notaJogos.innerText =
+    `${partidasVisiveis.length} exibidas de ${totalJogos} jogos definidos${descricaoFase}${descricaoBusca}`;
 
   if (partidasVisiveis.length === 0) {
     containerJogos.innerHTML =
-      '<div class="empty-state">As partidas desta categoria ainda não têm equipes definidas.</div>';
+      '<div class="empty-state">Nenhuma partida encontrada com os filtros atuais.</div>';
     return;
   }
 
@@ -324,12 +432,14 @@ function criarCardPartida(partida, opcoes = {}) {
   const bye = obterTurmaBye(partida);
   const status = obterStatus(partida);
   const agenda = obterAgenda(partida);
+  const dataId = `data-match-id="${textoSeguro(partida.id)}"`;
 
   if (bye) {
     return `
-      <article class="match-card bye-card">
+      <article class="match-card bye-card" ${dataId}>
         <span class="team highlight">${textoSeguro(bye)}</span>
         <div class="match-info">
+          <span class="match-phase">${textoSeguro(nomeFase(partida))}</span>
           <span class="score">Avançou</span>
           <span class="status-badge ${status.classe}">${status.texto}</span>
         </div>
@@ -339,10 +449,11 @@ function criarCardPartida(partida, opcoes = {}) {
   }
 
   return `
-    <article class="match-card ${opcoes.compacto ? "is-compact" : ""}">
+    <article class="match-card ${opcoes.compacto ? "is-compact" : ""}" ${dataId}>
       <span class="team">${textoSeguro(partida.turmaA ?? "A definir")}</span>
 
       <div class="match-info">
+        <span class="match-phase">${textoSeguro(nomeFase(partida))}</span>
         <span class="score">
           ${textoSeguro(partida.placarA ?? "-")} x ${textoSeguro(partida.placarB ?? "-")}
         </span>
@@ -414,7 +525,7 @@ function renderizarChaveamento(partidas) {
   rounds.forEach((rodada) => {
     const titulo = document.createElement("div");
     const quantidade = rodadas[rodada].length;
-    const nomesFase = {
+    const nomesPorQuantidade = {
       16: "16-Avos",
       8: "Oitavas",
       4: "Quartas",
@@ -423,7 +534,7 @@ function renderizarChaveamento(partidas) {
     };
 
     titulo.className = "round-title";
-    titulo.textContent = nomesFase[quantidade] ?? `Rodada ${rodada}`;
+    titulo.textContent = nomesPorQuantidade[quantidade] ?? `Rodada ${rodada}`;
     titulo.style.left = `${(rodada - 1) * colWidth}px`;
     bracket.appendChild(titulo);
 
@@ -546,6 +657,48 @@ function desenharLinhasChaveamento(config) {
   bracket.appendChild(svg);
 }
 
+function abrirDetalhesPartida(idPartida) {
+  const partida = partidasAtuais.find((item) => item.id === idPartida);
+
+  if (!partida) return;
+
+  const modal = document.getElementById("modal-partida");
+  const status = obterStatus(partida);
+  const bye = obterTurmaBye(partida);
+  const titulo = bye
+    ? `${bye} avançou direto`
+    : `${partida.turmaA ?? "A definir"} x ${partida.turmaB ?? "A definir"}`;
+  const placar = bye
+    ? "BYE"
+    : `${partida.placarA ?? "-"} x ${partida.placarB ?? "-"}`;
+  const penalti =
+    partida.penaltisA != null && partida.penaltisB != null
+      ? `${partida.penaltisA} x ${partida.penaltisB} nos pênaltis`
+      : null;
+  const agenda = obterAgenda(partida) || "Sem data definida";
+  const vencedor = partida.vencedor || bye || "A definir";
+
+  document.getElementById("modal-fase").textContent =
+    `${nomeFase(partida)} • ${nomeEsporteAtual()} • ${anoAtual}º Ano`;
+  document.getElementById("modal-titulo").textContent = titulo;
+  document.getElementById("modal-placar").textContent = placar;
+  document.getElementById("modal-detalhes").innerHTML = `
+    <div><span>Status</span><strong class="status-badge ${status.classe}">${status.texto}</strong></div>
+    <div><span>Agenda</span><strong>${textoSeguro(agenda)}</strong></div>
+    <div><span>Vencedor</span><strong>${textoSeguro(vencedor)}</strong></div>
+    ${penalti ? `<div><span>Decisão</span><strong>${textoSeguro(penalti)}</strong></div>` : ""}
+  `;
+  modal.classList.add("open");
+  modal.setAttribute("aria-hidden", "false");
+}
+
+function fecharDetalhesPartida() {
+  const modal = document.getElementById("modal-partida");
+
+  modal.classList.remove("open");
+  modal.setAttribute("aria-hidden", "true");
+}
+
 function ativarArrasteHorizontal(elemento) {
   let arrastando = false;
   let inicioX = 0;
@@ -648,6 +801,9 @@ document.querySelectorAll(".nav-btn").forEach((btn) => {
   btn.addEventListener("click", () => {
     anoAtual = Number(btn.getAttribute("data-year"));
     primeiraCarga = false;
+    filtroFaseAtual = "todos";
+    termoBusca = "";
+    document.getElementById("busca-turma").value = "";
     atualizarBotoesAtivos();
     renderizarInterface();
   });
@@ -657,9 +813,55 @@ document.querySelectorAll(".filter-btn").forEach((btn) => {
   btn.addEventListener("click", () => {
     esporteAtual = btn.getAttribute("data-sport");
     primeiraCarga = false;
+    filtroFaseAtual = "todos";
+    termoBusca = "";
+    document.getElementById("busca-turma").value = "";
     atualizarBotoesAtivos();
     renderizarInterface();
   });
+});
+
+document.getElementById("busca-turma").addEventListener("input", (evento) => {
+  termoBusca = evento.target.value;
+  renderizarPartidas(
+    partidasAtuais,
+    document.getElementById("container-jogos"),
+    document.getElementById("nota-jogos"),
+  );
+});
+
+document.getElementById("filtros-fase").addEventListener("click", (evento) => {
+  const botao = evento.target.closest("[data-phase]");
+
+  if (!botao) return;
+
+  filtroFaseAtual = botao.dataset.phase;
+  renderizarFiltrosFase(partidasAtuais);
+  renderizarPartidas(
+    partidasAtuais,
+    document.getElementById("container-jogos"),
+    document.getElementById("nota-jogos"),
+  );
+});
+
+document.addEventListener("click", (evento) => {
+  const acionador = evento.target.closest("[data-match-id]");
+
+  if (!acionador) return;
+
+  abrirDetalhesPartida(acionador.dataset.matchId);
+});
+
+document.getElementById("fechar-modal").addEventListener("click", fecharDetalhesPartida);
+document.getElementById("modal-partida").addEventListener("click", (evento) => {
+  if (evento.target.id === "modal-partida") {
+    fecharDetalhesPartida();
+  }
+});
+document.addEventListener("keydown", (evento) => {
+  if (evento.key === "Escape") {
+    fecharDetalhesPartida();
+  }
 });
 
 ativarArrasteHorizontal(document.getElementById("bracket-wrapper"));
