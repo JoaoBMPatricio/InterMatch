@@ -112,7 +112,7 @@ function atualizarPreviewPartida() {
       : "- x -";
   const agenda = [partidaSelecionada.data, partidaSelecionada.hora, partidaSelecionada.local]
     .filter(Boolean)
-    .join(" â€¢ ");
+    .join(" • ");
 
   labelTimeA.textContent = partidaSelecionada.turmaA ?? "Time A";
   labelTimeB.textContent = partidaSelecionada.turmaB ?? "Time B";
@@ -120,7 +120,7 @@ function atualizarPreviewPartida() {
     <span>${textoSeguro(nomeFase(partidaSelecionada))}</span>
     <strong>${textoSeguro(partidaSelecionada.turmaA)} x ${textoSeguro(partidaSelecionada.turmaB)}</strong>
     <div class="admin-preview-score">${textoSeguro(placar)}</div>
-    <small>${textoSeguro(formatarStatus(partidaSelecionada.status))}${agenda ? ` â€¢ ${textoSeguro(agenda)}` : ""}</small>
+    <small>${textoSeguro(formatarStatus(partidaSelecionada.status))}${agenda ? ` • ${textoSeguro(agenda)}` : ""}</small>
   `;
 }
 
@@ -143,7 +143,7 @@ function renderizarOpcoesPartidas() {
     option.value = partida.id;
     option.textContent =
       `[${nomeFase(partida)}] ${partida.turmaA ?? "A definir"} x ` +
-      `${partida.turmaB ?? "A definir"} â€¢ ${formatarStatus(partida.status)}`;
+      `${partida.turmaB ?? "A definir"} • ${formatarStatus(partida.status)}`;
     selectPartida.appendChild(option);
   });
 
@@ -206,7 +206,7 @@ async function carregarHistorico() {
     const snapshot = await getDocs(historicoQuery);
 
     if (snapshot.empty) {
-      historicoAdmin.innerHTML = '<div class="empty-state compact">Nenhuma alteraÃ§Ã£o registrada ainda.</div>';
+      historicoAdmin.innerHTML = '<div class="empty-state compact">Nenhuma alteração registrada ainda.</div>';
       return;
     }
 
@@ -218,7 +218,7 @@ async function carregarHistorico() {
       historicoAdmin.innerHTML += `
         <article class="history-item">
           <strong>${textoSeguro(item.acao)}</strong>
-          <span>${textoSeguro(partida)} â€¢ ${textoSeguro(item.esporte ?? "-")} â€¢ ${textoSeguro(item.ano ?? "-")}Âº Ano</span>
+          <span>${textoSeguro(partida)} • ${textoSeguro(item.esporte ?? "-")} • ${textoSeguro(item.ano ?? "-")}º Ano</span>
           <small>${textoSeguro(item.usuario ?? "admin")}</small>
         </article>
       `;
@@ -226,7 +226,7 @@ async function carregarHistorico() {
   } catch (erro) {
     console.error(erro);
     historicoAdmin.innerHTML =
-      '<div class="empty-state compact">NÃ£o foi possÃ­vel carregar o histÃ³rico.</div>';
+      '<div class="empty-state compact">Não foi possível carregar o histórico.</div>';
   }
 }
 
@@ -255,7 +255,7 @@ async function carregarPartidas() {
     } else {
       partidaSelecionada = null;
       atualizarPreviewPartida();
-      setMensagem("Nenhuma partida disponÃ­vel para editar.", "warning");
+      setMensagem("Nenhuma partida disponível para editar.", "warning");
     }
 
     await carregarHistorico();
@@ -268,7 +268,7 @@ async function carregarPartidas() {
     atualizarResumoAdmin();
     atualizarPreviewPartida();
     setMensagem(
-      "NÃ£o foi possÃ­vel carregar as partidas. Verifique as permissÃµes do Firebase.",
+      "Não foi possível carregar as partidas. Verifique as permissões do Firebase.",
       "error",
     );
   }
@@ -304,7 +304,7 @@ async function ajustarRankingFinal(ano, esporte, campeao, vice, direcao) {
   const config = configSnapshot.data();
 
   if (!config?.[esporte]) {
-    throw new Error(`PontuaÃ§Ã£o nÃ£o configurada para ${esporte}`);
+    throw new Error(`Pontuação não configurada para ${esporte}`);
   }
 
   const rankingRef = doc(db, "ranking", `${ano}ano`);
@@ -334,7 +334,7 @@ async function salvarResultado() {
     const placarB = Number(inputPlacarB.value);
 
     if (!Number.isFinite(placarA) || !Number.isFinite(placarB) || placarA < 0 || placarB < 0) {
-      setMensagem("Digite placares vÃ¡lidos, sem nÃºmeros negativos.", "warning");
+      setMensagem("Digite placares válidos, sem números negativos.", "warning");
       return;
     }
 
@@ -352,7 +352,7 @@ async function salvarResultado() {
       vencedor = turmaB;
     } else {
       if (inputPenaltisA.value === "" || inputPenaltisB.value === "") {
-        setMensagem("Empate. Preencha os pÃªnaltis com um vencedor.", "warning");
+        setMensagem("Empate. Preencha os pênaltis com um vencedor.", "warning");
         return;
       }
 
@@ -360,7 +360,7 @@ async function salvarResultado() {
       penaltisB = Number(inputPenaltisB.value);
 
       if (!Number.isFinite(penaltisA) || !Number.isFinite(penaltisB) || penaltisA < 0 || penaltisB < 0 || penaltisA === penaltisB) {
-        setMensagem("Preencha pÃªnaltis vÃ¡lidos, sem empate e sem nÃºmeros negativos.", "warning");
+        setMensagem("Preencha pênaltis válidos, sem empate e sem números negativos.", "warning");
         return;
       }
 
@@ -391,11 +391,11 @@ async function salvarResultado() {
     await carregarPartidas();
     selectPartida.value = idPartida;
     await carregarDadosPartida();
-    setMensagem("Resultado salvo, vencedor avanÃ§ado e partida finalizada.", "success");
+    setMensagem("Resultado salvo, vencedor avançado e partida finalizada.", "success");
   } catch (erro) {
     console.error(erro);
     setMensagem(
-      "NÃ£o foi possÃ­vel salvar o resultado. Verifique as permissÃµes do Firebase.",
+      "Não foi possível salvar o resultado. Verifique as permissões do Firebase.",
       "error",
     );
   }
@@ -422,7 +422,7 @@ async function salvarAgenda() {
       local: inputLocal.value.trim(),
     });
     await registrarHistorico("Agenda atualizada", partida, {
-      agenda: [inputData.value, inputHora.value, inputLocal.value.trim()].filter(Boolean).join(" â€¢ "),
+      agenda: [inputData.value, inputHora.value, inputLocal.value.trim()].filter(Boolean).join(" • "),
     });
     await carregarPartidas();
     selectPartida.value = idPartida;
@@ -431,7 +431,7 @@ async function salvarAgenda() {
   } catch (erro) {
     console.error(erro);
     setMensagem(
-      "NÃ£o foi possÃ­vel salvar a agenda. Verifique as permissÃµes do Firebase.",
+      "Não foi possível salvar a agenda. Verifique as permissões do Firebase.",
       "error",
     );
   }
@@ -455,7 +455,7 @@ async function atualizarStatusPartida(status) {
     setMensagem(`Partida marcada como ${formatarStatus(status).toLowerCase()}.`, "success");
   } catch (erro) {
     console.error(erro);
-    setMensagem("NÃ£o foi possÃ­vel atualizar o status.", "error");
+    setMensagem("Não foi possível atualizar o status.", "error");
   }
 }
 
@@ -494,17 +494,17 @@ async function limparResultado() {
       vencedor: null,
       status: "pendente",
     });
-    await registrarHistorico("AvanÃ§o desfeito", partida, {
+    await registrarHistorico("Avanço desfeito", partida, {
       vencedorAnterior,
       proximaPartida: partida.proximaPartida ?? null,
     });
     await carregarPartidas();
     selectPartida.value = idPartida;
     await carregarDadosPartida();
-    setMensagem("Placar limpo e avanÃ§o removido quando possÃ­vel.", "success");
+    setMensagem("Placar limpo e avanço removido quando possível.", "success");
   } catch (erro) {
     console.error(erro);
-    setMensagem("NÃ£o foi possÃ­vel desfazer o avanÃ§o.", "error");
+    setMensagem("Não foi possível desfazer o avanço.", "error");
   }
 }
 
@@ -531,7 +531,7 @@ async function carregarDadosPartida() {
     setMensagem("");
   } catch (erro) {
     console.error(erro);
-    setMensagem("NÃ£o foi possÃ­vel carregar os dados da partida.", "error");
+    setMensagem("Não foi possível carregar os dados da partida.", "error");
   }
 }
 
@@ -545,7 +545,7 @@ loginForm.addEventListener("submit", async (evento) => {
     setLoginMensagem("");
   } catch (erro) {
     console.error(erro);
-    setLoginMensagem("E-mail ou senha invÃ¡lidos.", "error");
+    setLoginMensagem("E-mail ou senha inválidos.", "error");
   }
 });
 

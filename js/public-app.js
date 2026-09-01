@@ -130,7 +130,7 @@ function obterAgenda(partida) {
   const local = partida.local ?? "";
   const dataHora = [data, hora].filter(Boolean).join(" - ");
 
-  return [dataHora, local].filter(Boolean).join(" â€¢ ");
+  return [dataHora, local].filter(Boolean).join(" • ");
 }
 
 function partidaContemTurma(partida, busca) {
@@ -171,7 +171,7 @@ function criarResumoEvento(partida, vazio) {
 
   return `
     <button class="event-match" data-match-id="${textoSeguro(partida.id)}">
-      <span>${textoSeguro(nomeFase(partida))} â€¢ ${textoSeguro(obterAgenda(partida) || "Sem agenda")}</span>
+      <span>${textoSeguro(nomeFase(partida))} • ${textoSeguro(obterAgenda(partida) || "Sem agenda")}</span>
       <strong>${textoSeguro(partida.turmaA ?? "A definir")} <b>${textoSeguro(placar)}</b> ${textoSeguro(partida.turmaB ?? "A definir")}</strong>
       <small class="status-badge ${status.classe}">${status.texto}</small>
     </button>
@@ -198,11 +198,11 @@ function renderizarModoEvento(partidas, proximosJogos) {
   );
   document.getElementById("evento-proximo").innerHTML = criarResumoEvento(
     proximosJogos[0],
-    "Nenhuma prÃ³xima partida cadastrada.",
+    "Nenhuma próxima partida cadastrada.",
   );
   document.getElementById("evento-resultados").innerHTML = resultados.length
     ? resultados.map((partida) => criarResumoEvento(partida, "")).join("")
-    : '<div class="event-empty">Nenhum resultado lanÃ§ado ainda.</div>';
+    : '<div class="event-empty">Nenhum resultado lançado ainda.</div>';
 }
 
 async function encontrarCategoriaInicial() {
@@ -235,7 +235,7 @@ function atualizarMetricas(partidas, ranking, proximosJogos) {
   const lider = ranking.find((posicao) => posicao.pontos > 0);
 
   document.getElementById("metric-categoria").textContent =
-    `${nomeEsporteAtual()} â€¢ ${anoAtual}Âº Ano`;
+    `${nomeEsporteAtual()} • ${anoAtual}º Ano`;
   document.getElementById("metric-partidas").textContent = partidasReais.length;
   document.getElementById("metric-finalizadas").textContent =
     finalizadas.length;
@@ -290,7 +290,7 @@ async function renderizarInterface() {
     }
 
     bracketSection.style.display = "block";
-    tituloJogos.innerText = `${nomeEsporteAtual()} - ${anoAtual}Âº Ano`;
+    tituloJogos.innerText = `${nomeEsporteAtual()} - ${anoAtual}º Ano`;
     notaProximos.innerText = proximosJogos.length
       ? `${proximosJogos.length} na agenda`
       : "Sem jogos agendados";
@@ -298,10 +298,10 @@ async function renderizarInterface() {
     renderizarPartidas(partidas, containerJogos, notaJogos);
   } catch (erro) {
     console.error(erro);
-    tituloJogos.innerText = "NÃ£o foi possÃ­vel carregar os jogos";
+    tituloJogos.innerText = "Não foi possível carregar os jogos";
     notaJogos.innerText = "";
     containerJogos.innerHTML =
-      '<div class="empty-state">Confira sua conexÃ£o e tente novamente.</div>';
+      '<div class="empty-state">Confira sua conexão e tente novamente.</div>';
     proximosContainer.innerHTML = "";
     tabelaRanking.innerHTML = "";
     bracketSection.style.display = "none";
@@ -338,9 +338,9 @@ function renderizarPartidaDestaque(partida, finalEncerrada) {
     destaque.classList.add("is-champion");
     destaque.innerHTML = `
       <div class="featured-copy">
-        <span class="featured-label">CampeÃ£o do Interclasse</span>
+        <span class="featured-label">Campeão do Interclasse</span>
         <strong data-team="${textoSeguro(finalEncerrada.vencedor)}">${textoSeguro(finalEncerrada.vencedor)}</strong>
-        <span>Vice-campeÃ£o: ${textoSeguro(vice ?? "A definir")}</span>
+        <span>Vice-campeão: ${textoSeguro(vice ?? "A definir")}</span>
       </div>
       <button class="featured-action" data-team="${textoSeguro(finalEncerrada.vencedor)}">Ver campanha</button>
     `;
@@ -352,7 +352,7 @@ function renderizarPartidaDestaque(partida, finalEncerrada) {
   if (!partida) {
     destaque.innerHTML = `
       <div class="featured-copy">
-        <span class="featured-label">PrÃ³xima partida</span>
+        <span class="featured-label">Próxima partida</span>
         <strong>Nenhum jogo agendado</strong>
       </div>
     `;
@@ -361,7 +361,7 @@ function renderizarPartidaDestaque(partida, finalEncerrada) {
 
   destaque.innerHTML = `
     <div class="featured-copy">
-      <span class="featured-label">PrÃ³xima partida</span>
+      <span class="featured-label">Próxima partida</span>
       <strong>${textoSeguro(partida.turmaA)} x ${textoSeguro(partida.turmaB)}</strong>
       <span>${textoSeguro(obterAgenda(partida))}</span>
     </div>
@@ -411,7 +411,7 @@ function renderizarProximosJogos(proximosJogos, container) {
 
   if (proximosJogos.length === 0) {
     container.innerHTML =
-      '<div class="empty-state compact">Nenhum prÃ³ximo jogo cadastrado.</div>';
+      '<div class="empty-state compact">Nenhum próximo jogo cadastrado.</div>';
     return;
   }
 
@@ -426,12 +426,12 @@ function renderizarRanking(ranking, tabelaRanking, notaRanking) {
   const todosZerados = ranking.length > 0 && ranking.every((item) => item.pontos === 0);
 
   notaRanking.innerText = todosZerados
-    ? "PontuaÃ§Ã£o comeÃ§a apÃ³s as finais"
+    ? "Pontuação começa após as finais"
     : `${ranking.length} turmas`;
 
   if (ranking.length === 0) {
     tabelaRanking.innerHTML =
-      '<tr><td colspan="3" class="empty-table">Ranking ainda nÃ£o cadastrado.</td></tr>';
+      '<tr><td colspan="3" class="empty-table">Ranking ainda não cadastrado.</td></tr>';
     return;
   }
 
@@ -444,7 +444,7 @@ function renderizarRanking(ranking, tabelaRanking, notaRanking) {
 
     tabelaRanking.innerHTML += `
       <tr class="${topClass}">
-        <td class="pos-col">${index + 1}Âº</td>
+        <td class="pos-col">${index + 1}º</td>
         <td>${textoSeguro(posicao.turma)}</td>
         <td class="pts-col">${textoSeguro(posicao.pontos)} pts</td>
       </tr>
@@ -457,11 +457,11 @@ function renderizarPartidas(partidas, containerJogos, notaJogos) {
 
   const partidasVisiveis = aplicarFiltrosPartidas(partidas);
   const totalJogos = partidas.filter(ehPartidaReal).length;
-  const descricaoBusca = termoBusca ? ` â€¢ busca: ${termoBusca}` : "";
+  const descricaoBusca = termoBusca ? ` • busca: ${termoBusca}` : "";
   const descricaoFase =
     filtroFaseAtual === "todos"
       ? ""
-      : ` â€¢ ${nomesFase[filtroFaseAtual] ?? filtroFaseAtual}`;
+      : ` • ${nomesFase[filtroFaseAtual] ?? filtroFaseAtual}`;
 
   notaJogos.innerText =
     `${partidasVisiveis.length} exibidas de ${totalJogos} jogos definidos${descricaoFase}${descricaoBusca}`;
@@ -489,7 +489,7 @@ function criarCardPartida(partida, opcoes = {}) {
         <span class="team highlight" data-team="${textoSeguro(bye)}">${textoSeguro(bye)}</span>
         <div class="match-info">
           <span class="match-phase">${textoSeguro(nomeFase(partida))}</span>
-          <span class="score">AvanÃ§ou</span>
+          <span class="score">Avançou</span>
           <span class="status-badge ${status.classe}">${status.texto}</span>
         </div>
         <span class="team muted">BYE</span>
@@ -540,7 +540,7 @@ function renderizarChaveamento(partidas) {
 
   if (rounds.length === 0) {
     wrapper.innerHTML =
-      '<div class="empty-state compact">Chaveamento ainda nÃ£o cadastrado.</div>';
+      '<div class="empty-state compact">Chaveamento ainda não cadastrado.</div>';
     return;
   }
 
@@ -724,27 +724,27 @@ function abrirDetalhesPartida(idPartida) {
   const status = obterStatus(partida);
   const bye = obterTurmaBye(partida);
   const titulo = bye
-    ? `${bye} avanÃ§ou direto`
+    ? `${bye} avançou direto`
     : `${partida.turmaA ?? "A definir"} x ${partida.turmaB ?? "A definir"}`;
   const placar = bye
     ? "BYE"
     : `${partida.placarA ?? "-"} x ${partida.placarB ?? "-"}`;
   const penalti =
     partida.penaltisA != null && partida.penaltisB != null
-      ? `${partida.penaltisA} x ${partida.penaltisB} nos pÃªnaltis`
+      ? `${partida.penaltisA} x ${partida.penaltisB} nos pênaltis`
       : null;
   const agenda = obterAgenda(partida) || "Sem data definida";
   const vencedor = partida.vencedor || bye || "A definir";
 
   document.getElementById("modal-fase").textContent =
-    `${nomeFase(partida)} â€¢ ${nomeEsporteAtual()} â€¢ ${anoAtual}Âº Ano`;
+    `${nomeFase(partida)} • ${nomeEsporteAtual()} • ${anoAtual}º Ano`;
   document.getElementById("modal-titulo").textContent = titulo;
   document.getElementById("modal-placar").textContent = placar;
   document.getElementById("modal-detalhes").innerHTML = `
     <div><span>Status</span><strong class="status-badge ${status.classe}">${status.texto}</strong></div>
     <div><span>Agenda</span><strong>${textoSeguro(agenda)}</strong></div>
     <div><span>Vencedor</span><strong>${textoSeguro(vencedor)}</strong></div>
-    ${penalti ? `<div><span>DecisÃ£o</span><strong>${textoSeguro(penalti)}</strong></div>` : ""}
+    ${penalti ? `<div><span>Decisão</span><strong>${textoSeguro(penalti)}</strong></div>` : ""}
   `;
   modal.classList.add("open");
   modal.setAttribute("aria-hidden", "false");
@@ -767,7 +767,7 @@ function compartilharPartida() {
       : "placar a definir";
   const agenda = obterAgenda(partidaAberta) || "agenda a definir";
   const texto =
-    `InterMatch - ${nomeEsporteAtual()} ${anoAtual}Âº Ano\n` +
+    `InterMatch - ${nomeEsporteAtual()} ${anoAtual}º Ano\n` +
     `${nomeFase(partidaAberta)}: ${partidaAberta.turmaA ?? "A definir"} x ${partidaAberta.turmaB ?? "A definir"}\n` +
     `Placar: ${placar}\n` +
     `Agenda: ${agenda}`;
@@ -818,9 +818,9 @@ function formatarResultadoTurma(partida, turma) {
     `${partida.placarA ?? "-"} x ${partida.placarB ?? "-"}`;
   const decisao =
     partida.penaltisA != null && partida.penaltisB != null
-      ? `, pÃªnaltis ${partida.penaltisA} x ${partida.penaltisB}`
+      ? `, pênaltis ${partida.penaltisA} x ${partida.penaltisB}`
       : "";
-  const sinal = partida.vencedor === turma ? "VitÃ³ria" : "Derrota";
+  const sinal = partida.vencedor === turma ? "Vitória" : "Derrota";
 
   return `${sinal}, ${marcador}${decisao}`;
 }
@@ -836,15 +836,15 @@ function abrirPerfilTurma(turma) {
       : 0;
 
   document.getElementById("modal-turma-contexto").textContent =
-    `${nomeEsporteAtual()} â€¢ ${anoAtual}Âº Ano`;
+    `${nomeEsporteAtual()} • ${anoAtual}º Ano`;
   document.getElementById("modal-turma-titulo").textContent = turma;
   document.getElementById("modal-turma-estatisticas").innerHTML = `
     <div><span>Jogos</span><strong>${resumo.partidasReais.length}</strong></div>
-    <div><span>VitÃ³rias</span><strong>${resumo.vitorias}</strong></div>
+    <div><span>Vitórias</span><strong>${resumo.vitorias}</strong></div>
     <div><span>Derrotas</span><strong>${resumo.derrotas}</strong></div>
     <div><span>Aproveitamento</span><strong>${aproveitamento}%</strong></div>
     <div><span>Pontos gerais</span><strong>${resumo.pontos}</strong></div>
-    <div><span>Ranking</span><strong>${resumo.posicaoRanking ? `${resumo.posicaoRanking}Âº` : "-"}</strong></div>
+    <div><span>Ranking</span><strong>${resumo.posicaoRanking ? `${resumo.posicaoRanking}º` : "-"}</strong></div>
   `;
   document.getElementById("modal-turma-jogos").innerHTML = resumo.jogos.length
     ? resumo.jogos
@@ -969,10 +969,10 @@ themeToggleBtn.addEventListener("click", () => {
 
   if (currentTheme === "dark") {
     document.documentElement.setAttribute("data-theme", "light");
-    themeToggleBtn.innerText = "â˜€ï¸";
+    themeToggleBtn.innerText = "☀️";
   } else {
     document.documentElement.setAttribute("data-theme", "dark");
-    themeToggleBtn.innerText = "ðŸŒ™";
+    themeToggleBtn.innerText = "🌙";
   }
 });
 
