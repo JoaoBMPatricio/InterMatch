@@ -280,6 +280,21 @@ header {
     white-space: nowrap;
 }
 
+.featured-match.is-champion {
+    border-color: rgba(234, 88, 12, 0.36);
+    background:
+        linear-gradient(135deg, rgba(234, 88, 12, 0.12), transparent 42%),
+        var(--card-bg);
+}
+
+.featured-match.is-champion .featured-label {
+    color: var(--logo-color);
+}
+
+.featured-match.is-champion .featured-action {
+    background: var(--logo-color);
+}
+
 .right-column {
     display: flex;
     flex-direction: column;
@@ -424,6 +439,14 @@ header {
     color: var(--accent-strong);
 }
 
+.team[data-team] {
+    cursor: pointer;
+}
+
+.team[data-team]:hover {
+    color: var(--accent);
+}
+
 .team.muted {
     color: var(--text-muted);
     font-size: 0.78rem;
@@ -564,6 +587,15 @@ header {
     display: flex;
     flex-direction: column;
     overflow: hidden;
+}
+
+.bracket-match.is-search-match {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.bracket-match.is-search-match .bracket-team {
+    background: var(--accent-soft);
 }
 
 .absolute-match {
@@ -782,6 +814,327 @@ header {
 .modal-details strong {
     text-align: right;
     font-size: 0.9rem;
+}
+
+.team-modal {
+    max-height: min(680px, calc(100vh - 2rem));
+    overflow-y: auto;
+}
+
+.team-profile-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin: 1rem 0;
+}
+
+.team-profile-stats div {
+    background: var(--panel-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.75rem;
+}
+
+.team-profile-stats span,
+.team-history-item span,
+.team-history-item small {
+    display: block;
+    color: var(--text-muted);
+    font-size: 0.66rem;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.team-profile-stats strong {
+    display: block;
+    margin-top: 4px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.1rem;
+}
+
+.team-profile-list {
+    display: grid;
+    gap: 8px;
+}
+
+.team-history-item {
+    width: 100%;
+    text-align: left;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.8rem;
+    cursor: pointer;
+}
+
+.team-history-item:hover {
+    border-color: var(--accent);
+}
+
+.team-history-item strong {
+    display: block;
+    margin: 3px 0;
+    color: var(--text-main);
+}
+
+.admin-page {
+    background: var(--panel-bg);
+}
+
+.admin-public-link {
+    color: var(--accent);
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 9px 12px;
+    font-size: 0.82rem;
+    font-weight: 900;
+    text-decoration: none;
+}
+
+.admin-shell {
+    width: min(1180px, calc(100% - 2rem));
+    margin: 1.5rem auto 3rem;
+}
+
+.admin-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 0.48fr);
+    gap: 1rem;
+    align-items: stretch;
+    margin-bottom: 1rem;
+}
+
+.admin-hero h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.65rem;
+    margin: 0.35rem 0;
+}
+
+.admin-hero p {
+    color: var(--text-muted);
+    font-weight: 700;
+    line-height: 1.45;
+}
+
+.admin-status-card,
+.admin-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: var(--shadow-soft);
+}
+
+.admin-status-card {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    padding: 1rem;
+}
+
+.admin-status-card div {
+    background: var(--panel-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.75rem;
+}
+
+.admin-status-card span,
+.admin-card-header p,
+.admin-match-preview span,
+.admin-match-preview small {
+    color: var(--text-muted);
+    font-size: 0.72rem;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.admin-status-card strong {
+    display: block;
+    margin-top: 4px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.25rem;
+}
+
+.admin-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.admin-card {
+    padding: 1rem;
+}
+
+.admin-card-header {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.admin-card-header > span {
+    width: 30px;
+    height: 30px;
+    flex: 0 0 30px;
+    display: grid;
+    place-items: center;
+    background: var(--accent);
+    color: #ffffff;
+    border-radius: 8px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 900;
+}
+
+.admin-card-header h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.05rem;
+    margin-bottom: 3px;
+}
+
+.admin-card-header p {
+    line-height: 1.35;
+}
+
+.admin-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+}
+
+.admin-field,
+.admin-form-grid label,
+.score-editor label {
+    display: grid;
+    gap: 6px;
+    color: var(--text-muted);
+    font-size: 0.76rem;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.admin-field {
+    margin-top: 0.75rem;
+}
+
+.admin-page select,
+.admin-page input {
+    width: 100%;
+    min-width: 0;
+    background: var(--panel-bg);
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 10px 11px;
+    font-size: 0.92rem;
+    font-weight: 800;
+    outline: none;
+}
+
+.admin-page select:focus,
+.admin-page input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.admin-match-preview {
+    background: var(--panel-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    min-height: 130px;
+}
+
+.admin-match-preview strong {
+    display: block;
+    margin: 0.35rem 0;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.25rem;
+}
+
+.admin-preview-score {
+    display: inline-flex;
+    background: var(--score-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 6px 12px;
+    margin-bottom: 0.45rem;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 900;
+}
+
+.admin-actions {
+    display: flex;
+    gap: 0.6rem;
+    margin-top: 0.8rem;
+}
+
+.admin-primary,
+.admin-secondary {
+    border: 0;
+    border-radius: 8px;
+    padding: 11px 14px;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.admin-primary {
+    width: 100%;
+    margin-top: 1rem;
+    background: var(--accent);
+    color: #ffffff;
+}
+
+.admin-secondary {
+    flex: 1;
+    background: var(--panel-bg);
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+}
+
+.score-editor {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 28px minmax(0, 1fr);
+    gap: 0.75rem;
+    align-items: end;
+    margin-bottom: 0.75rem;
+}
+
+.score-editor strong {
+    display: grid;
+    place-items: center;
+    height: 42px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.2rem;
+}
+
+.admin-message {
+    min-height: 42px;
+    margin-top: 1rem;
+    padding: 0.85rem 1rem;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    font-weight: 800;
+}
+
+.admin-message:empty {
+    display: none;
+}
+
+.admin-message[data-type="success"] {
+    color: var(--finished-color);
+    background: var(--finished-bg);
+}
+
+.admin-message[data-type="warning"] {
+    color: var(--logo-color);
+    background: rgba(234, 88, 12, 0.12);
+}
+
+.admin-message[data-type="error"] {
+    color: var(--live-color);
+    background: var(--live-bg);
 }
 
 footer {
@@ -1076,6 +1429,51 @@ footer span {
         font-size: 1.45rem;
         padding: 0.75rem;
     }
+
+    .team-profile-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .admin-shell {
+        width: calc(100% - 1.7rem);
+        margin: 1rem auto 2rem;
+    }
+
+    .admin-hero,
+    .admin-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-hero {
+        gap: 0.75rem;
+    }
+
+    .admin-hero h1 {
+        font-size: 1.35rem;
+    }
+
+    .admin-status-card,
+    .admin-card {
+        box-shadow: none;
+    }
+
+    .admin-form-grid {
+        grid-template-columns: 1fr;
+        gap: 0.65rem;
+    }
+
+    .admin-actions {
+        flex-direction: column;
+    }
+
+    .score-editor {
+        grid-template-columns: minmax(0, 1fr) 24px minmax(0, 1fr);
+        gap: 0.5rem;
+    }
+
+    .admin-card {
+        padding: 0.85rem;
+    }
 }
 
 @media (max-width: 520px) {
@@ -1160,6 +1558,24 @@ footer span {
     .ranking-table td,
     .ranking-table th {
         font-size: 0.72rem;
+    }
+
+    .team-profile-stats,
+    .admin-status-card {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .admin-public-link {
+        text-align: center;
+    }
+
+    .admin-card-header h2 {
+        font-size: 0.98rem;
+    }
+
+    .score-editor input {
+        text-align: center;
+        font-size: 1rem;
     }
 }
 

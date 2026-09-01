@@ -5,86 +5,154 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>InterMatch Admin</title>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="style.css" />
   </head>
-  <body>
+  <body class="admin-page">
     <header>
       <div class="logo-intermatch">INTERMATCH ADMIN</div>
+      <a class="admin-public-link" href="index.html">Ver site</a>
     </header>
 
-    <div class="container">
-      <main style="width: 100%">
-        <h2 class="section-title">Cadastro de Resultados</h2>
-
-        <div class="ranking-container" style="padding: 20px">
-          <label>Ano</label>
-          <select id="ano">
-            <option value="1">1º Ano</option>
-            <option value="2">2º Ano</option>
-            <option value="3">3º Ano</option>
-          </select>
-
-          <br /><br />
-
-          <label>Esporte</label>
-          <select id="esporte">
-            <option value="futebol-m">Futebol Masculino</option>
-            <option value="futebol-f">Futebol Feminino</option>
-            <option value="basquete">Basquete</option>
-            <option value="volei-m">Vôlei Masculino</option>
-            <option value="volei-f">Vôlei Feminino</option>
-          </select>
-
-          <br /><br />
-
-          <label>Partida</label>
-          <select id="partida"></select>
-
-          <br /><br />
-
-          <label>Placar Time A</label>
-          <input type="number" id="placarA" />
-
-          <label>Placar Time B</label>
-          <input type="number" id="placarB" />
-
-          <br /><br />
-
-          <label>Pênaltis Time A</label>
-          <input type="number" id="penaltisA" />
-
-          <label>Pênaltis Time B</label>
-          <input type="number" id="penaltisB" />
-
-          <br /><br />
-
-          <button id="salvar">Salvar Resultado</button>
-
-          <br /><br />
-
-          <label>Data</label>
-          <input type="date" id="dataPartida" />
-
-          <br /><br />
-
-          <label>Hora</label>
-          <input type="time" id="horaPartida" />
-
-          <br /><br />
-
-          <label>Local</label>
-          <input type="text" id="localPartida" placeholder="Ex: Quadra 1" />
-
-          <br /><br />
-
-          <button id="salvarAgenda">Salvar Data/Hora/Local</button>
-
-          <br /><br />
-
-          <p id="mensagem"></p>
+    <main class="admin-shell">
+      <section class="admin-hero">
+        <div>
+          <span class="featured-label">Painel de controle</span>
+          <h1>Atualização de partidas</h1>
+          <p>Escolha uma categoria, selecione a partida e atualize agenda, placar ou status em poucos cliques.</p>
         </div>
-      </main>
-    </div>
+        <div class="admin-status-card" id="resumo-admin">Carregando partidas...</div>
+      </section>
+
+      <section class="admin-grid">
+        <article class="admin-card">
+          <div class="admin-card-header">
+            <span>1</span>
+            <div>
+              <h2>Categoria</h2>
+              <p>Filtre o ano e o esporte antes de editar.</p>
+            </div>
+          </div>
+
+          <div class="admin-form-grid">
+            <label>
+              Ano
+              <select id="ano">
+                <option value="1">1º Ano</option>
+                <option value="2">2º Ano</option>
+                <option value="3">3º Ano</option>
+              </select>
+            </label>
+
+            <label>
+              Esporte
+              <select id="esporte">
+                <option value="futebol-m">Futebol Masculino</option>
+                <option value="futebol-f">Futebol Feminino</option>
+                <option value="basquete">Basquete 3x3</option>
+                <option value="volei-m">Vôlei Masculino</option>
+                <option value="volei-f">Vôlei Feminino</option>
+              </select>
+            </label>
+          </div>
+
+          <label class="admin-field">
+            Partida
+            <select id="partida"></select>
+          </label>
+        </article>
+
+        <article class="admin-card selected-match-card">
+          <div class="admin-card-header">
+            <span>2</span>
+            <div>
+              <h2>Partida selecionada</h2>
+              <p>Confira antes de salvar qualquer alteração.</p>
+            </div>
+          </div>
+
+          <div class="admin-match-preview" id="preview-partida">
+            Selecione uma partida para ver os detalhes.
+          </div>
+
+          <div class="admin-actions">
+            <button class="admin-secondary" id="marcarAoVivo" type="button">Marcar ao vivo</button>
+            <button class="admin-secondary" id="limparResultado" type="button">Limpar placar</button>
+          </div>
+        </article>
+
+        <article class="admin-card">
+          <div class="admin-card-header">
+            <span>3</span>
+            <div>
+              <h2>Agenda</h2>
+              <p>Use horário e local para orientar alunos durante o evento.</p>
+            </div>
+          </div>
+
+          <div class="admin-form-grid">
+            <label>
+              Data
+              <input type="date" id="dataPartida" />
+            </label>
+
+            <label>
+              Hora
+              <input type="time" id="horaPartida" />
+            </label>
+          </div>
+
+          <label class="admin-field">
+            Local
+            <input type="text" id="localPartida" placeholder="Ex: Quadra Society 1" />
+          </label>
+
+          <button class="admin-primary" id="salvarAgenda" type="button">Salvar agenda</button>
+        </article>
+
+        <article class="admin-card">
+          <div class="admin-card-header">
+            <span>4</span>
+            <div>
+              <h2>Resultado</h2>
+              <p>Em caso de empate, preencha os pênaltis para definir o vencedor.</p>
+            </div>
+          </div>
+
+          <div class="score-editor">
+            <label>
+              <span id="labelTimeA">Time A</span>
+              <input type="number" id="placarA" min="0" inputmode="numeric" />
+            </label>
+
+            <strong>x</strong>
+
+            <label>
+              <span id="labelTimeB">Time B</span>
+              <input type="number" id="placarB" min="0" inputmode="numeric" />
+            </label>
+          </div>
+
+          <div class="admin-form-grid">
+            <label>
+              Pênaltis A
+              <input type="number" id="penaltisA" min="0" inputmode="numeric" />
+            </label>
+
+            <label>
+              Pênaltis B
+              <input type="number" id="penaltisB" min="0" inputmode="numeric" />
+            </label>
+          </div>
+
+          <button class="admin-primary" id="salvar" type="button">Finalizar e avançar vencedor</button>
+        </article>
+      </section>
+
+      <p class="admin-message" id="mensagem" role="status"></p>
+    </main>
 
     <script type="module" src="admin.js"></script>
   </body>
