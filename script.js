@@ -54,6 +54,8 @@ let filtroFaseAtual = "todos";
 let termoBusca = "";
 let partidasAtuais = [];
 let rankingAtual = [];
+let visualizacaoAtual = "completo";
+let partidaAberta = null;
 
 async function buscarPartidas(ano, esporte) {
   const snapshot = await getDocs(
@@ -191,6 +193,61 @@ function obterCampeao(partidas) {
   );
 }
 
+function aplicarVisualizacao() {
+  document.querySelectorAll("[data-view]").forEach((botao) => {
+    botao.classList.toggle("active", botao.dataset.view === visualizacaoAtual);
+  });
+
+  document.querySelectorAll(".view-completo, .view-evento, .view-regulamento").forEach((elemento) => {
+    const visivel = elemento.classList.contains(`view-${visualizacaoAtual}`);
+    elemento.hidden = !visivel;
+  });
+}
+
+function criarResumoEvento(partida, vazio) {
+  if (!partida) {
+    return `<div class="event-empty">${vazio}</div>`;
+  }
+
+  const status = obterStatus(partida);
+  const placar = `${partida.placarA ?? "-"} x ${partida.placarB ?? "-"}`;
+
+  return `
+    <button class="event-match" data-match-id="${textoSeguro(partida.id)}">
+      <span>${textoSeguro(nomeFase(partida))} • ${textoSeguro(obterAgenda(partida) || "Sem agenda")}</span>
+      <strong>${textoSeguro(partida.turmaA ?? "A definir")} <b>${textoSeguro(placar)}</b> ${textoSeguro(partida.turmaB ?? "A definir")}</strong>
+      <small class="status-badge ${status.classe}">${status.texto}</small>
+    </button>
+  `;
+}
+
+function renderizarModoEvento(partidas, proximosJogos) {
+  const agora = partidas.find(
+    (partida) => ehPartidaReal(partida) && partida.status === "ao-vivo",
+  );
+  const resultados = partidas
+    .filter((partida) => ehPartidaReal(partida) && partida.status === "encerrada")
+    .sort((a, b) => {
+      const dataA = new Date(`${a.data ?? "9999-12-31"}T${a.hora ?? "23:59"}`);
+      const dataB = new Date(`${b.data ?? "9999-12-31"}T${b.hora ?? "23:59"}`);
+
+      return dataB - dataA;
+    })
+    .slice(0, 4);
+
+  document.getElementById("evento-agora").innerHTML = criarResumoEvento(
+    agora,
+    "Nenhuma partida marcada como ao vivo.",
+  );
+  document.getElementById("evento-proximo").innerHTML = criarResumoEvento(
+    proximosJogos[0],
+    "Nenhuma próxima partida cadastrada.",
+  );
+  document.getElementById("evento-resultados").innerHTML = resultados.length
+    ? resultados.map((partida) => criarResumoEvento(partida, "")).join("")
+    : '<div class="event-empty">Nenhum resultado lançado ainda.</div>';
+}
+
 async function encontrarCategoriaInicial() {
   for (const categoria of ordemInicial) {
     const partidas = await buscarPartidas(categoria.ano, categoria.esporte);
@@ -260,6 +317,8 @@ async function renderizarInterface() {
     renderizarChaveamento(partidas);
     renderizarProximosJogos(proximosJogos, proximosContainer);
     renderizarRanking(ranking, tabelaRanking, notaRanking);
+    renderizarModoEvento(partidas, proximosJogos);
+    aplicarVisualizacao();
 
     if (partidas.length === 0) {
       tituloJogos.innerText = `Partidas - ${nomeEsporteAtual()}`;
@@ -268,6 +327,8 @@ async function renderizarInterface() {
       containerJogos.innerHTML =
         '<div class="empty-state">Nenhuma partida cadastrada para esta categoria.</div>';
       bracketSection.style.display = "none";
+      renderizarModoEvento(partidas, proximosJogos);
+      aplicarVisualizacao();
       return;
     }
 
@@ -700,6 +761,8 @@ function abrirDetalhesPartida(idPartida) {
 
   if (!partida) return;
 
+  partidaAberta = partida;
+
   const modal = document.getElementById("modal-partida");
   const status = obterStatus(partida);
   const bye = obterTurmaBye(partida);
@@ -733,8 +796,27 @@ function abrirDetalhesPartida(idPartida) {
 function fecharDetalhesPartida() {
   const modal = document.getElementById("modal-partida");
 
+  partidaAberta = null;
   modal.classList.remove("open");
   modal.setAttribute("aria-hidden", "true");
+}
+
+function compartilharPartida() {
+  if (!partidaAberta) return;
+
+  const placar =
+    partidaAberta.placarA != null && partidaAberta.placarB != null
+      ? `${partidaAberta.placarA} x ${partidaAberta.placarB}`
+      : "placar a definir";
+  const agenda = obterAgenda(partidaAberta) || "agenda a definir";
+  const texto =
+    `InterMatch - ${nomeEsporteAtual()} ${anoAtual}º Ano\n` +
+    `${nomeFase(partidaAberta)}: ${partidaAberta.turmaA ?? "A definir"} x ${partidaAberta.turmaB ?? "A definir"}\n` +
+    `Placar: ${placar}\n` +
+    `Agenda: ${agenda}`;
+  const url = `https://wa.me/?text=${encodeURIComponent(texto)}`;
+
+  window.open(url, "_blank", "noopener");
 }
 
 function obterResumoTurma(turma) {
@@ -985,6 +1067,13 @@ document.getElementById("filtros-fase").addEventListener("click", (evento) => {
   );
 });
 
+document.querySelectorAll("[data-view]").forEach((botao) => {
+  botao.addEventListener("click", () => {
+    visualizacaoAtual = botao.dataset.view;
+    aplicarVisualizacao();
+  });
+});
+
 document.addEventListener("click", (evento) => {
   const turma = evento.target.closest("[data-team]");
 
@@ -1006,6 +1095,7 @@ document.addEventListener("click", (evento) => {
 });
 
 document.getElementById("fechar-modal").addEventListener("click", fecharDetalhesPartida);
+document.getElementById("compartilhar-partida").addEventListener("click", compartilharPartida);
 document.getElementById("modal-partida").addEventListener("click", (evento) => {
   if (evento.target.id === "modal-partida") {
     fecharDetalhesPartida();

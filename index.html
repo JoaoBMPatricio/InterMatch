@@ -32,7 +32,13 @@
         <button class="filter-btn" data-sport="volei-f">Vôlei Fem.</button>
     </div>
 
-    <section class="scoreboard" aria-label="Resumo do campeonato">
+    <nav class="view-tabs" aria-label="Selecionar visualização">
+        <button class="view-tab active" data-view="completo">Completo</button>
+        <button class="view-tab" data-view="evento">Dia do evento</button>
+        <button class="view-tab" data-view="regulamento">Regulamento</button>
+    </nav>
+
+    <section class="scoreboard view-completo view-evento" aria-label="Resumo do campeonato">
         <div class="scoreboard-item">
             <span class="metric-label">Categoria</span>
             <strong id="metric-categoria">Carregando...</strong>
@@ -55,7 +61,53 @@
         </div>
     </section>
 
-    <div class="container">
+    <section class="event-mode view-evento" id="modo-evento" hidden>
+        <div class="section-heading">
+            <h2 class="section-title">Dia do Evento</h2>
+            <span class="section-note">Resumo rápido para acompanhar no celular</span>
+        </div>
+        <div class="event-grid">
+            <article class="event-panel event-live">
+                <span class="featured-label">Agora</span>
+                <div id="evento-agora"></div>
+            </article>
+            <article class="event-panel">
+                <span class="featured-label">Próximo</span>
+                <div id="evento-proximo"></div>
+            </article>
+            <article class="event-panel">
+                <span class="featured-label">Últimos resultados</span>
+                <div id="evento-resultados"></div>
+            </article>
+        </div>
+    </section>
+
+    <section class="rules-panel view-regulamento" id="regulamento" hidden>
+        <div class="section-heading">
+            <h2 class="section-title">Regulamento</h2>
+            <span class="section-note">Informações principais do interclasse</span>
+        </div>
+        <div class="rules-grid">
+            <article>
+                <h3>Pontuação geral</h3>
+                <p>Campeão e vice somam pontos para o ranking do ano conforme a configuração de cada esporte.</p>
+            </article>
+            <article>
+                <h3>Mata-mata</h3>
+                <p>Quem vence avança para a próxima fase. Partidas com BYE indicam classificação direta.</p>
+            </article>
+            <article>
+                <h3>Empates</h3>
+                <p>Em jogos eliminatórios empatados, o vencedor deve ser definido nos pênaltis ou no critério combinado pela organização.</p>
+            </article>
+            <article>
+                <h3>Organização</h3>
+                <p>Horários, locais e resultados podem ser atualizados durante o evento pela equipe responsável.</p>
+            </article>
+        </div>
+    </section>
+
+    <div class="container view-completo">
         <main>
             <section class="featured-match" id="partida-destaque"></section>
 
@@ -117,6 +169,7 @@
             <h2 id="modal-titulo"></h2>
             <div class="modal-score" id="modal-placar"></div>
             <div class="modal-details" id="modal-detalhes"></div>
+            <button class="share-match-btn" id="compartilhar-partida" type="button">Compartilhar no WhatsApp</button>
         </article>
     </div>
 

@@ -11,9 +11,30 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body class="admin-page">
+    <section class="login-screen" id="login-screen">
+      <form class="login-card" id="login-form">
+        <span class="featured-label">Acesso restrito</span>
+        <h1>Entrar no admin</h1>
+        <label>
+          E-mail
+          <input type="email" id="login-email" autocomplete="email" required />
+        </label>
+        <label>
+          Senha
+          <input type="password" id="login-senha" autocomplete="current-password" required />
+        </label>
+        <button class="admin-primary" type="submit">Entrar</button>
+        <p class="admin-message" id="login-mensagem" role="status"></p>
+      </form>
+    </section>
+
     <header>
       <div class="logo-intermatch">INTERMATCH ADMIN</div>
-      <a class="admin-public-link" href="index.html">Ver site</a>
+      <div class="admin-top-actions">
+        <span id="admin-user"></span>
+        <a class="admin-public-link" href="index.html">Ver site</a>
+        <button class="admin-public-link" id="sair-admin" type="button">Sair</button>
+      </div>
     </header>
 
     <main class="admin-shell">
@@ -62,6 +83,14 @@
             Partida
             <select id="partida"></select>
           </label>
+
+          <div class="quick-filters" id="filtros-admin" aria-label="Filtrar partidas">
+            <button class="quick-filter active" data-admin-filter="todas" type="button">Todas</button>
+            <button class="quick-filter" data-admin-filter="pendente" type="button">A jogar</button>
+            <button class="quick-filter" data-admin-filter="ao-vivo" type="button">Ao vivo</button>
+            <button class="quick-filter" data-admin-filter="encerrada" type="button">Finalizadas</button>
+            <button class="quick-filter" data-admin-filter="sem-agenda" type="button">Sem horário</button>
+          </div>
         </article>
 
         <article class="admin-card selected-match-card">
@@ -79,7 +108,7 @@
 
           <div class="admin-actions">
             <button class="admin-secondary" id="marcarAoVivo" type="button">Marcar ao vivo</button>
-            <button class="admin-secondary" id="limparResultado" type="button">Limpar placar</button>
+            <button class="admin-secondary" id="limparResultado" type="button">Desfazer avanço</button>
           </div>
         </article>
 
@@ -152,6 +181,17 @@
       </section>
 
       <p class="admin-message" id="mensagem" role="status"></p>
+
+      <section class="admin-card history-card">
+        <div class="admin-card-header">
+          <span>5</span>
+          <div>
+            <h2>Histórico de alterações</h2>
+            <p>Últimas ações feitas no painel admin.</p>
+          </div>
+        </div>
+        <div class="history-list" id="historico-admin">Carregando histórico...</div>
+      </section>
     </main>
 
     <script type="module" src="admin.js"></script>
