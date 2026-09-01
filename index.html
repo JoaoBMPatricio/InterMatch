@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Intermatch - Resultados do Interclasse</title>
+    <title>InterMatch - Resultados do Interclasse</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,7 +15,7 @@
     <header>
         <div class="logo-intermatch">INTERMATCH</div>
         <div class="header-controls">
-            <nav class="year-nav">
+            <nav class="year-nav" aria-label="Selecionar ano">
                 <button class="nav-btn active" data-year="1">1º Ano</button>
                 <button class="nav-btn" data-year="2">2º Ano</button>
                 <button class="nav-btn" data-year="3">3º Ano</button>
@@ -24,7 +24,7 @@
         </div>
     </header>
 
-    <div class="filters">
+    <div class="filters" aria-label="Selecionar esporte">
         <button class="filter-btn active" data-sport="futebol-m">Futebol Masc.</button>
         <button class="filter-btn" data-sport="futebol-f">Futebol Fem.</button>
         <button class="filter-btn" data-sport="basquete">Basquete 3x3</button>
@@ -32,25 +32,60 @@
         <button class="filter-btn" data-sport="volei-f">Vôlei Fem.</button>
     </div>
 
+    <section class="scoreboard" aria-label="Resumo do campeonato">
+        <div class="scoreboard-item">
+            <span class="metric-label">Categoria</span>
+            <strong id="metric-categoria">Carregando...</strong>
+        </div>
+        <div class="scoreboard-item">
+            <span class="metric-label">Partidas</span>
+            <strong id="metric-partidas">0</strong>
+        </div>
+        <div class="scoreboard-item">
+            <span class="metric-label">Finalizadas</span>
+            <strong id="metric-finalizadas">0</strong>
+        </div>
+        <div class="scoreboard-item">
+            <span class="metric-label">Próximas</span>
+            <strong id="metric-proximas">0</strong>
+        </div>
+        <div class="scoreboard-item">
+            <span class="metric-label">Líder</span>
+            <strong id="metric-lider">-</strong>
+        </div>
+    </section>
+
     <div class="container">
         <main>
-            <h2 class="section-title" id="titulo-jogos">Partidas - Futebol Masc.</h2>
+            <div class="section-heading">
+                <h2 class="section-title" id="titulo-jogos">Partidas</h2>
+                <span class="section-note" id="nota-jogos"></span>
+            </div>
             <div class="matches-grid" id="container-jogos"></div>
         </main>
 
         <div class="right-column">
             <section id="bracket-section">
-                <h2 class="section-title">Chaveamento Final</h2>
+                <div class="section-heading">
+                    <h2 class="section-title">Chaveamento Final</h2>
+                    <span class="section-note">Arraste para ver todas as fases</span>
+                </div>
                 <div class="bracket-container" id="bracket-wrapper"></div>
             </section>
 
             <section>
-                <h2 class="section-title">Próximos Jogos</h2>
-                <div id="proximos-jogos"></div>
+                <div class="section-heading">
+                    <h2 class="section-title">Próximos Jogos</h2>
+                    <span class="section-note" id="nota-proximos"></span>
+                </div>
+                <div class="matches-grid compact" id="proximos-jogos"></div>
             </section>
 
             <section>
-                <h2 class="section-title">Classificação Geral por Ano</h2>
+                <div class="section-heading">
+                    <h2 class="section-title">Classificação Geral</h2>
+                    <span class="section-note" id="nota-ranking"></span>
+                </div>
                 <div class="ranking-container">
                     <table class="ranking-table">
                         <thead>
@@ -72,8 +107,6 @@
         <span>João Benassi, Matheus Mariz, Pietro Silva, Lucas Groschitz, Hugo Moreira e Erick Dias.</span>
         Docente responsável: <b>André Felipe Barbosa.</b>
     </footer>
-
-    <p id="usuario"></p>
 
     <script type="module" src="script.js"></script>
 </body>
