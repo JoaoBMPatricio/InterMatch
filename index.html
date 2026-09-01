@@ -4,15 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Intermatch - Resultados do Interclasse</title>
- 
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
- 
+
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
     <header>
         <div class="logo-intermatch">INTERMATCH</div>
         <div class="header-controls">
@@ -21,7 +20,7 @@
                 <button class="nav-btn" data-year="2">2º Ano</button>
                 <button class="nav-btn" data-year="3">3º Ano</button>
             </nav>
-            <button class="theme-toggle-btn" id="theme-toggle" title="Alternar Tema">☀️</button>
+            <button class="theme-toggle-btn" id="theme-toggle" title="Alternar tema" aria-label="Alternar tema">☀️</button>
         </div>
     </header>
 
@@ -42,24 +41,13 @@
         <div class="right-column">
             <section id="bracket-section">
                 <h2 class="section-title">Chaveamento Final</h2>
-                <div class="bracket-container" id="bracket-wrapper">
-                    <div class="bracket-round round-semi" id="bracket-semis"></div>
-                    <div class="bracket-round round-final">
-                        <div class="bracket-round-title">Grande Final</div>
-                        <div class="bracket-match" id="bracket-final"></div>
-                    </div>
-                </div>
+                <div class="bracket-container" id="bracket-wrapper"></div>
             </section>
- 
+
             <section>
-
-    <h2 class="section-title">
-        Próximos Jogos
-    </h2>
-
-    <div id="proximos-jogos"></div>
-
-</section>
+                <h2 class="section-title">Próximos Jogos</h2>
+                <div id="proximos-jogos"></div>
+            </section>
 
             <section>
                 <h2 class="section-title">Classificação Geral por Ano</h2>
@@ -80,14 +68,13 @@
     </div>
 
     <footer>
-        Desenvolvido pelo grupo de Projeto do Ano: <span>João Benassi, Matheus Mariz, Pietro Silva, 
-        Lucas Groschitz, Hugo Moreira e Erick Dias.</span> Docente responsável: <b> André Felipe Barbosa. <b>
+        Desenvolvido pelo grupo de Projeto do Ano:
+        <span>João Benassi, Matheus Mariz, Pietro Silva, Lucas Groschitz, Hugo Moreira e Erick Dias.</span>
+        Docente responsável: <b>André Felipe Barbosa.</b>
     </footer>
 
     <p id="usuario"></p>
 
     <script type="module" src="script.js"></script>
-    
 </body>
 </html>
-

@@ -1,24 +1,24 @@
-# 🏆 InterMatch
+# InterMatch
 
 Sistema web para acompanhamento de partidas, classificação e estatísticas do Interclasse.
 
-## 📖 Sobre o projeto
+## Sobre o projeto
 
 O **InterMatch** foi desenvolvido para centralizar as informações do Interclasse em uma única plataforma, permitindo acompanhar partidas, resultados, classificações e estatísticas de forma simples e acessível.
 
-## ✨ Funcionalidades
+## Funcionalidades
 
-* 📅 Visualização de partidas
-* 🏅 Classificação geral das turmas
-* 📊 Estatísticas automáticas
-* 🌙 Tema claro e escuro
-* 📱 Interface responsiva para computador e celular
+* Visualização de partidas
+* Classificação geral das turmas
+* Estatísticas automáticas
+* Tema claro e escuro
+* Interface responsiva para computador e celular
 
-## 🎯 Objetivo
+## Objetivo
 
 O objetivo do projeto é facilitar a divulgação e o acompanhamento das competições do Interclasse, oferecendo uma plataforma simples para alunos, professores e organizadores.
 
-## 🛠️ Tecnologias utilizadas
+## Tecnologias utilizadas
 
 * HTML5
 * CSS3
@@ -26,6 +26,6 @@ O objetivo do projeto é facilitar a divulgação e o acompanhamento das competi
 * JSON
 * GitHub Pages
 
-## 👨‍💻 Autor
+## Autor
 
 Desenvolvido por **João Patricio**.

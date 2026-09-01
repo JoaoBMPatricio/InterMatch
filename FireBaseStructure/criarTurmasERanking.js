@@ -18,9 +18,7 @@ async function criarTurmasERanking() {
 
   const ranking3Ano = {};
 
-  // =====================
   // TURMAS DO 3º ANO
-  // =====================
 
   for (const [curso, quantidade] of Object.entries(cursos)) {
 
@@ -43,9 +41,7 @@ async function criarTurmasERanking() {
     }
   }
 
-  // =====================
   // RANKING
-  // =====================
 
   await setDoc(
     doc(db, "ranking", "1ano"),
