@@ -51,8 +51,6 @@ const adminUser = document.getElementById("admin-user");
 const botaoSair = document.getElementById("sair-admin");
 const filtrosAdmin = document.getElementById("filtros-admin");
 const historicoAdmin = document.getElementById("historico-admin");
-const botaoExportarPartidasCsv = document.getElementById("exportarPartidasCsv");
-const botaoExportarRankingCsv = document.getElementById("exportarRankingCsv");
 const modalConfirmacao = document.getElementById("modal-confirmacao-admin");
 const confirmacaoContexto = document.getElementById("confirmacao-contexto");
 const confirmacaoTitulo = document.getElementById("confirmacao-titulo");
@@ -127,40 +125,6 @@ function criarResumoConfirmacao(linhas) {
       },
     )
     .join("");
-}
-
-function valorCsv(valor) {
-  const texto = String(valor ?? "");
-
-  return `"${texto.replaceAll('"', '""')}"`;
-}
-
-function baixarCsv(nomeArquivo, cabecalho, linhas) {
-  const conteudo = [
-    cabecalho.map(valorCsv).join(","),
-    ...linhas.map((linha) => linha.map(valorCsv).join(",")),
-  ].join("\n");
-  const blob = new Blob([`\uFEFF${conteudo}`], {
-    type: "text/csv;charset=utf-8",
-  });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-
-  link.href = url;
-  link.download = nomeArquivo;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  URL.revokeObjectURL(url);
-}
-
-function slugArquivo(texto) {
-  return String(texto)
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-zA-Z0-9-]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .toLowerCase();
 }
 
 function atualizarTelaAuth(usuario) {
@@ -412,19 +376,6 @@ async function ajustarRankingFinal(ano, esporte, campeao, vice, direcao) {
   rankingAtual[vice] = Math.max(0, (rankingAtual[vice] || 0) + config[esporte].vice * multiplicador);
 
   await setDoc(rankingRef, rankingAtual);
-}
-
-async function buscarRankingAtual() {
-  const snapshot = await getDoc(doc(db, "ranking", `${selectAno.value}ano`));
-
-  if (!snapshot.exists()) return [];
-
-  return Object.entries(snapshot.data())
-    .map(([turma, pontos]) => ({
-      turma,
-      pontos: Number(pontos) || 0,
-    }))
-    .sort((a, b) => b.pontos - a.pontos || a.turma.localeCompare(b.turma));
 }
 
 async function salvarResultado() {
@@ -713,59 +664,6 @@ async function carregarDadosPartida() {
   }
 }
 
-function exportarPartidasCsv() {
-  if (partidasAdmin.length === 0) {
-    setMensagem("Não há partidas carregadas para exportar.", "warning");
-    return;
-  }
-
-  const linhas = partidasAdmin.map((partida) => [
-    selectAno.value,
-    esportes[selectEsporte.value] ?? selectEsporte.value,
-    partida.id,
-    nomeFase(partida),
-    partida.turmaA ?? "",
-    partida.turmaB ?? "",
-    partida.placarA ?? "",
-    partida.placarB ?? "",
-    partida.penaltisA ?? "",
-    partida.penaltisB ?? "",
-    partida.vencedor ?? "",
-    formatarStatus(partida.status),
-    partida.data ?? "",
-    partida.hora ?? "",
-    partida.local ?? "",
-  ]);
-
-  baixarCsv(
-    `intermatch-partidas-${selectAno.value}ano-${slugArquivo(selectEsporte.value)}.csv`,
-    ["Ano", "Esporte", "ID", "Fase", "Turma A", "Turma B", "Placar A", "Placar B", "Pênaltis A", "Pênaltis B", "Vencedor", "Status", "Data", "Hora", "Local"],
-    linhas,
-  );
-  setMensagem("CSV de partidas exportado.", "success");
-}
-
-async function exportarRankingCsv() {
-  try {
-    const ranking = await buscarRankingAtual();
-
-    if (ranking.length === 0) {
-      setMensagem("Não há ranking carregado para exportar.", "warning");
-      return;
-    }
-
-    baixarCsv(
-      `intermatch-ranking-${selectAno.value}ano.csv`,
-      ["Posição", "Ano", "Turma", "Pontos"],
-      ranking.map((item, index) => [index + 1, `${selectAno.value}º Ano`, item.turma, item.pontos]),
-    );
-    setMensagem("CSV de ranking exportado.", "success");
-  } catch (erro) {
-    console.error(erro);
-    setMensagem("Não foi possível exportar o ranking.", "error");
-  }
-}
-
 loginForm.addEventListener("submit", async (evento) => {
   evento.preventDefault();
   setLoginMensagem("Entrando...");
@@ -788,8 +686,6 @@ botaoSalvar.addEventListener("click", salvarResultado);
 botaoSalvarAgenda.addEventListener("click", salvarAgenda);
 botaoMarcarAoVivo.addEventListener("click", () => atualizarStatusPartida("ao-vivo"));
 botaoLimparResultado.addEventListener("click", limparResultado);
-botaoExportarPartidasCsv.addEventListener("click", exportarPartidasCsv);
-botaoExportarRankingCsv.addEventListener("click", exportarRankingCsv);
 botaoCancelarConfirmacao.addEventListener("click", () => fecharConfirmacao(false));
 botaoConfirmarAcao.addEventListener("click", () => fecharConfirmacao(true));
 modalConfirmacao.addEventListener("click", (evento) => {

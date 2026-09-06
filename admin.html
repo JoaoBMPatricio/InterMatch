@@ -43,12 +43,17 @@
           <span class="featured-label">Painel de controle</span>
           <h1>Atualização de partidas</h1>
           <p>Escolha uma categoria, selecione a partida e atualize agenda, placar ou status em poucos cliques.</p>
+          <div class="admin-shortcuts" aria-label="Atalhos do painel">
+            <a href="#agenda-card">Agenda</a>
+            <a href="#resultado-card">Resultado</a>
+            <a href="#historico-card">Histórico</a>
+          </div>
         </div>
         <div class="admin-status-card" id="resumo-admin">Carregando partidas...</div>
       </section>
 
       <section class="admin-grid">
-        <article class="admin-card">
+        <article class="admin-card category-card">
           <div class="admin-card-header">
             <span>1</span>
             <div>
@@ -112,22 +117,7 @@
           </div>
         </article>
 
-        <article class="admin-card export-card">
-          <div class="admin-card-header">
-            <span>CSV</span>
-            <div>
-              <h2>Exportar dados</h2>
-              <p>Baixe planilhas da categoria selecionada para conferência ou arquivo.</p>
-            </div>
-          </div>
-
-          <div class="admin-actions">
-            <button class="admin-secondary" id="exportarPartidasCsv" type="button">Partidas CSV</button>
-            <button class="admin-secondary" id="exportarRankingCsv" type="button">Ranking CSV</button>
-          </div>
-        </article>
-
-        <article class="admin-card">
+        <article class="admin-card agenda-card" id="agenda-card">
           <div class="admin-card-header">
             <span>3</span>
             <div>
@@ -156,7 +146,7 @@
           <button class="admin-primary" id="salvarAgenda" type="button">Salvar agenda</button>
         </article>
 
-        <article class="admin-card">
+        <article class="admin-card result-card" id="resultado-card">
           <div class="admin-card-header">
             <span>4</span>
             <div>
@@ -197,7 +187,7 @@
 
       <p class="admin-message" id="mensagem" role="status"></p>
 
-      <section class="admin-card history-card">
+      <section class="admin-card history-card" id="historico-card">
         <div class="admin-card-header">
           <span>5</span>
           <div>

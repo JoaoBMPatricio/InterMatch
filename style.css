@@ -419,6 +419,27 @@ header {
     animation: fadeIn 0.25s ease-out;
 }
 
+#container-jogos {
+    max-height: 500px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-right: 4px;
+    scrollbar-width: thin;
+}
+
+#container-jogos::-webkit-scrollbar {
+    width: 7px;
+}
+
+#container-jogos::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 999px;
+}
+
+#container-jogos:hover::-webkit-scrollbar-thumb {
+    background: var(--accent);
+}
+
 .match-card {
     background: var(--card-bg);
     border: 1px solid var(--border-color);
@@ -683,6 +704,23 @@ header {
     border-radius: 8px;
     padding: 1rem;
     box-shadow: var(--shadow-soft);
+    max-height: 360px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+}
+
+.ranking-container::-webkit-scrollbar {
+    width: 7px;
+}
+
+.ranking-container::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 999px;
+}
+
+.ranking-container:hover::-webkit-scrollbar-thumb {
+    background: var(--accent);
 }
 
 .ranking-table {
@@ -972,9 +1010,31 @@ header {
     gap: 8px;
 }
 
+.team-directory-section {
+    min-height: 0;
+}
+
 .team-directory {
     display: grid;
-    gap: 8px;
+    gap: 6px;
+    max-height: 260px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-right: 4px;
+    scrollbar-width: thin;
+}
+
+.team-directory::-webkit-scrollbar {
+    width: 7px;
+}
+
+.team-directory::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 999px;
+}
+
+.team-directory:hover::-webkit-scrollbar-thumb {
+    background: var(--accent);
 }
 
 .team-directory-item {
@@ -982,13 +1042,13 @@ header {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
-    gap: 4px 10px;
+    gap: 2px 10px;
     text-align: left;
     background: var(--card-bg);
     color: var(--text-main);
     border: 1px solid var(--border-color);
     border-radius: 8px;
-    padding: 0.75rem;
+    padding: 0.58rem 0.65rem;
     cursor: pointer;
     box-shadow: var(--shadow-soft);
 }
@@ -1008,13 +1068,13 @@ header {
 .team-directory-item strong {
     color: var(--accent);
     font-family: 'Space Grotesk', sans-serif;
-    font-size: 0.86rem;
+    font-size: 0.78rem;
 }
 
 .team-directory-item small {
     grid-column: 1 / -1;
     color: var(--text-muted);
-    font-size: 0.68rem;
+    font-size: 0.62rem;
     font-weight: 900;
     text-transform: uppercase;
 }
@@ -1174,6 +1234,28 @@ button.admin-public-link {
     line-height: 1.45;
 }
 
+.admin-shortcuts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 1rem;
+}
+
+.admin-shortcuts a {
+    color: var(--accent);
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    padding: 7px 11px;
+    font-size: 0.74rem;
+    font-weight: 900;
+    text-decoration: none;
+}
+
+.admin-shortcuts a:hover {
+    border-color: var(--accent);
+}
+
 .admin-status-card,
 .admin-card {
     background: var(--card-bg);
@@ -1215,12 +1297,32 @@ button.admin-public-link {
 
 .admin-grid {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: minmax(320px, 0.9fr) minmax(0, 1.1fr);
+    grid-template-areas:
+        "category selected"
+        "agenda result";
     gap: 1rem;
+    align-items: start;
 }
 
 .admin-card {
     padding: 1rem;
+}
+
+.category-card {
+    grid-area: category;
+}
+
+.selected-match-card {
+    grid-area: selected;
+}
+
+.agenda-card {
+    grid-area: agenda;
+}
+
+.result-card {
+    grid-area: result;
 }
 
 .admin-card-header {
@@ -1469,11 +1571,12 @@ button.admin-public-link {
     flex: 1;
 }
 
-.export-card .admin-card-header > span {
-    font-size: 0.72rem;
-}
-
 footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
     text-align: center;
     padding: 2rem;
     border-top: 1px solid var(--border-color);
@@ -1486,6 +1589,22 @@ footer {
 footer span {
     color: var(--text-main);
     font-weight: 700;
+}
+
+.footer-admin-link {
+    color: var(--accent);
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 0.76rem;
+    font-weight: 900;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.footer-admin-link:hover {
+    border-color: var(--accent);
 }
 
 @media (max-width: 1120px) {
@@ -1814,6 +1933,10 @@ footer span {
         box-shadow: none;
     }
 
+    .team-directory {
+        max-height: 220px;
+    }
+
     .team-profile-actions {
         flex-direction: column;
     }
@@ -1841,6 +1964,14 @@ footer span {
         grid-template-columns: 1fr;
     }
 
+    .admin-grid {
+        grid-template-areas:
+            "category"
+            "selected"
+            "agenda"
+            "result";
+    }
+
     .admin-hero {
         gap: 0.75rem;
     }
@@ -1861,6 +1992,16 @@ footer span {
 
     .admin-actions {
         flex-direction: column;
+    }
+
+    .admin-shortcuts {
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        padding-bottom: 2px;
+    }
+
+    .admin-shortcuts a {
+        flex: 0 0 auto;
     }
 
     .score-editor {
@@ -1929,6 +2070,14 @@ footer span {
         gap: 8px;
     }
 
+    #container-jogos {
+        max-height: 360px;
+    }
+
+    .ranking-container {
+        max-height: 300px;
+    }
+
     .match-card,
     .bye-card {
         grid-template-columns: minmax(0, 1fr) 96px minmax(0, 1fr);
@@ -1973,6 +2122,10 @@ footer span {
     .score-editor input {
         text-align: center;
         font-size: 1rem;
+    }
+
+    footer {
+        padding: 1.4rem 1rem;
     }
 }
 

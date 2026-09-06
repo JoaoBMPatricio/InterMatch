@@ -29,6 +29,7 @@ let anoAtual = 1;
 let esporteAtual = "futebol-m";
 let primeiraCarga = true;
 let filtroFaseAtual = "todos";
+let filtroFaseManual = false;
 let termoBusca = "";
 let partidasAtuais = [];
 let rankingAtual = [];
@@ -290,6 +291,7 @@ async function renderizarInterface() {
     rankingAtual = ranking;
     atualizarMetricas(partidas, ranking, proximosJogos);
     renderizarPartidaDestaque(proximosJogos[0], obterCampeao(partidas));
+    aplicarFasePadrao(partidas);
     renderizarFiltrosFase(partidas);
     renderizarChaveamento(partidas);
     renderizarProximosJogos(proximosJogos, proximosContainer);
@@ -414,6 +416,46 @@ function renderizarFiltrosFase(partidas) {
       return `<button class="phase-btn ${ativo}" data-phase="${textoSeguro(fase)}">${textoSeguro(label)}</button>`;
     })
     .join("");
+}
+
+function obterFaseAtual(partidas) {
+  const rodadas = new Map();
+
+  partidas
+    .filter((partida) => partida.fase && (ehPartidaReal(partida) || obterTurmaBye(partida)))
+    .forEach((partida) => {
+      const rodada = Number(partida.rodada ?? 999);
+      const chave = `${rodada}-${partida.fase}`;
+
+      if (!rodadas.has(chave)) {
+        rodadas.set(chave, {
+          fase: partida.fase,
+          rodada,
+          partidas: [],
+        });
+      }
+
+      rodadas.get(chave).partidas.push(partida);
+    });
+
+  const ordenadas = [...rodadas.values()].sort((a, b) => a.rodada - b.rodada);
+  const rodadaPendente = ordenadas.find((grupo) =>
+    grupo.partidas.some((partida) => !obterTurmaBye(partida) && partida.status !== "encerrada"),
+  );
+
+  return rodadaPendente?.fase ?? ordenadas.at(-1)?.fase ?? "todos";
+}
+
+function aplicarFasePadrao(partidas) {
+  const fasesPresentes = new Set(partidas.map((partida) => partida.fase).filter(Boolean));
+
+  if (!fasesPresentes.has(filtroFaseAtual)) {
+    filtroFaseManual = false;
+  }
+
+  if (!filtroFaseManual) {
+    filtroFaseAtual = obterFaseAtual(partidas);
+  }
 }
 
 function aplicarFiltrosPartidas(partidas) {
@@ -1119,6 +1161,7 @@ document.querySelectorAll(".nav-btn").forEach((btn) => {
     anoAtual = Number(btn.getAttribute("data-year"));
     primeiraCarga = false;
     filtroFaseAtual = "todos";
+    filtroFaseManual = false;
     termoBusca = "";
     document.getElementById("busca-turma").value = "";
     atualizarBotoesAtivos();
@@ -1131,6 +1174,7 @@ document.querySelectorAll(".filter-btn").forEach((btn) => {
     esporteAtual = btn.getAttribute("data-sport");
     primeiraCarga = false;
     filtroFaseAtual = "todos";
+    filtroFaseManual = false;
     termoBusca = "";
     document.getElementById("busca-turma").value = "";
     atualizarBotoesAtivos();
@@ -1154,6 +1198,7 @@ document.getElementById("filtros-fase").addEventListener("click", (evento) => {
   if (!botao) return;
 
   filtroFaseAtual = botao.dataset.phase;
+  filtroFaseManual = true;
   renderizarFiltrosFase(partidasAtuais);
   renderizarPartidas(
     partidasAtuais,
