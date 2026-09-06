@@ -17,6 +17,7 @@
   updateDoc,
 } from "./firebase-service.js";
 import {
+  esportes,
   formatarStatus,
   nomeFase,
   ordenarPartidas,
@@ -50,11 +51,21 @@ const adminUser = document.getElementById("admin-user");
 const botaoSair = document.getElementById("sair-admin");
 const filtrosAdmin = document.getElementById("filtros-admin");
 const historicoAdmin = document.getElementById("historico-admin");
+const botaoExportarPartidasCsv = document.getElementById("exportarPartidasCsv");
+const botaoExportarRankingCsv = document.getElementById("exportarRankingCsv");
+const modalConfirmacao = document.getElementById("modal-confirmacao-admin");
+const confirmacaoContexto = document.getElementById("confirmacao-contexto");
+const confirmacaoTitulo = document.getElementById("confirmacao-titulo");
+const confirmacaoTexto = document.getElementById("confirmacao-texto");
+const confirmacaoResumo = document.getElementById("confirmacao-resumo");
+const botaoCancelarConfirmacao = document.getElementById("cancelar-confirmacao");
+const botaoConfirmarAcao = document.getElementById("confirmar-acao");
 
 let partidasAdmin = [];
 let partidaSelecionada = null;
 let filtroAdminAtual = "todas";
 let usuarioAtual = null;
+let resolverConfirmacao = null;
 
 
 function setMensagem(texto, tipo = "info") {
@@ -65,6 +76,91 @@ function setMensagem(texto, tipo = "info") {
 function setLoginMensagem(texto, tipo = "info") {
   loginMensagem.textContent = texto;
   loginMensagem.dataset.type = tipo;
+}
+
+function formatarCategoriaAtual() {
+  return `${esportes[selectEsporte.value] ?? selectEsporte.value} • ${selectAno.value}º Ano`;
+}
+
+function descreverPartida(partida) {
+  if (!partida) return "Partida não selecionada";
+
+  return `${nomeFase(partida)} • ${partida.turmaA ?? "A definir"} x ${partida.turmaB ?? "A definir"}`;
+}
+
+function abrirConfirmacao({ contexto = "Confirmação", titulo, texto, resumo, confirmar = "Confirmar" }) {
+  confirmacaoContexto.textContent = contexto;
+  confirmacaoTitulo.textContent = titulo;
+  confirmacaoTexto.textContent = texto;
+  confirmacaoResumo.innerHTML = resumo;
+  botaoConfirmarAcao.textContent = confirmar;
+  modalConfirmacao.classList.add("open");
+  modalConfirmacao.setAttribute("aria-hidden", "false");
+
+  return new Promise((resolve) => {
+    resolverConfirmacao = resolve;
+  });
+}
+
+function fecharConfirmacao(confirmado = false) {
+  modalConfirmacao.classList.remove("open");
+  modalConfirmacao.setAttribute("aria-hidden", "true");
+
+  if (resolverConfirmacao) {
+    resolverConfirmacao(confirmado);
+    resolverConfirmacao = null;
+  }
+}
+
+function criarResumoConfirmacao(linhas) {
+  return linhas
+    .map(
+      ([rotulo, valor]) => {
+        const texto = valor == null || valor === "" ? "-" : valor;
+
+        return `
+        <div>
+          <span>${textoSeguro(rotulo)}</span>
+          <strong>${textoSeguro(texto)}</strong>
+        </div>
+      `;
+      },
+    )
+    .join("");
+}
+
+function valorCsv(valor) {
+  const texto = String(valor ?? "");
+
+  return `"${texto.replaceAll('"', '""')}"`;
+}
+
+function baixarCsv(nomeArquivo, cabecalho, linhas) {
+  const conteudo = [
+    cabecalho.map(valorCsv).join(","),
+    ...linhas.map((linha) => linha.map(valorCsv).join(",")),
+  ].join("\n");
+  const blob = new Blob([`\uFEFF${conteudo}`], {
+    type: "text/csv;charset=utf-8",
+  });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = nomeArquivo;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+function slugArquivo(texto) {
+  return String(texto)
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9-]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .toLowerCase();
 }
 
 function atualizarTelaAuth(usuario) {
@@ -318,6 +414,19 @@ async function ajustarRankingFinal(ano, esporte, campeao, vice, direcao) {
   await setDoc(rankingRef, rankingAtual);
 }
 
+async function buscarRankingAtual() {
+  const snapshot = await getDoc(doc(db, "ranking", `${selectAno.value}ano`));
+
+  if (!snapshot.exists()) return [];
+
+  return Object.entries(snapshot.data())
+    .map(([turma, pontos]) => ({
+      turma,
+      pontos: Number(pontos) || 0,
+    }))
+    .sort((a, b) => b.pontos - a.pontos || a.turma.localeCompare(b.turma));
+}
+
 async function salvarResultado() {
   try {
     if (!selectPartida.value) {
@@ -365,6 +474,25 @@ async function salvarResultado() {
       }
 
       vencedor = penaltisA > penaltisB ? turmaA : turmaB;
+    }
+
+    const confirmado = await abrirConfirmacao({
+      contexto: "Resultado",
+      titulo: "Finalizar partida?",
+      texto: "Esta ação salva o placar, encerra a partida e avança o vencedor no chaveamento.",
+      resumo: criarResumoConfirmacao([
+        ["Categoria", formatarCategoriaAtual()],
+        ["Partida", descreverPartida(partida)],
+        ["Placar", `${placarA} x ${placarB}`],
+        ["Pênaltis", penaltisA != null && penaltisB != null ? `${penaltisA} x ${penaltisB}` : "Não teve"],
+        ["Vencedor", vencedor],
+      ]),
+      confirmar: "Finalizar partida",
+    });
+
+    if (!confirmado) {
+      setMensagem("Ação cancelada.", "warning");
+      return;
     }
 
     await updateDoc(obterRefPartida(idPartida), {
@@ -415,6 +543,23 @@ async function salvarAgenda() {
 
     const idPartida = selectPartida.value;
     const partida = await carregarPartidaPorId(idPartida);
+    const agenda = [inputData.value, inputHora.value, inputLocal.value.trim()].filter(Boolean).join(" • ") || "Sem agenda";
+    const confirmado = await abrirConfirmacao({
+      contexto: "Agenda",
+      titulo: "Salvar agenda?",
+      texto: "A agenda exibida no site público será atualizada para esta partida.",
+      resumo: criarResumoConfirmacao([
+        ["Categoria", formatarCategoriaAtual()],
+        ["Partida", descreverPartida(partida)],
+        ["Agenda", agenda],
+      ]),
+      confirmar: "Salvar agenda",
+    });
+
+    if (!confirmado) {
+      setMensagem("Ação cancelada.", "warning");
+      return;
+    }
 
     await updateDoc(obterRefPartida(idPartida), {
       data: inputData.value,
@@ -446,6 +591,22 @@ async function atualizarStatusPartida(status) {
 
     const idPartida = selectPartida.value;
     const partida = await carregarPartidaPorId(idPartida);
+    const confirmado = await abrirConfirmacao({
+      contexto: "Status",
+      titulo: `Marcar como ${formatarStatus(status).toLowerCase()}?`,
+      texto: "O status aparece imediatamente no site público.",
+      resumo: criarResumoConfirmacao([
+        ["Categoria", formatarCategoriaAtual()],
+        ["Partida", descreverPartida(partida)],
+        ["Novo status", formatarStatus(status)],
+      ]),
+      confirmar: "Atualizar status",
+    });
+
+    if (!confirmado) {
+      setMensagem("Ação cancelada.", "warning");
+      return;
+    }
 
     await updateDoc(obterRefPartida(idPartida), { status });
     await registrarHistorico(`Status: ${formatarStatus(status)}`, partida);
@@ -469,6 +630,23 @@ async function limparResultado() {
     const idPartida = selectPartida.value;
     const partida = await carregarPartidaPorId(idPartida);
     const vencedorAnterior = partida.vencedor ?? null;
+    const confirmado = await abrirConfirmacao({
+      contexto: "Desfazer",
+      titulo: "Desfazer avanço?",
+      texto: "Esta ação limpa o placar da partida e tenta remover o vencedor da próxima fase.",
+      resumo: criarResumoConfirmacao([
+        ["Categoria", formatarCategoriaAtual()],
+        ["Partida", descreverPartida(partida)],
+        ["Vencedor atual", vencedorAnterior ?? "Não definido"],
+        ["Próxima partida", partida.proximaPartida ?? "Não se aplica"],
+      ]),
+      confirmar: "Desfazer avanço",
+    });
+
+    if (!confirmado) {
+      setMensagem("Ação cancelada.", "warning");
+      return;
+    }
 
     if (partida.proximaPartida && vencedorAnterior) {
       const proxima = await carregarPartidaPorId(partida.proximaPartida);
@@ -535,6 +713,59 @@ async function carregarDadosPartida() {
   }
 }
 
+function exportarPartidasCsv() {
+  if (partidasAdmin.length === 0) {
+    setMensagem("Não há partidas carregadas para exportar.", "warning");
+    return;
+  }
+
+  const linhas = partidasAdmin.map((partida) => [
+    selectAno.value,
+    esportes[selectEsporte.value] ?? selectEsporte.value,
+    partida.id,
+    nomeFase(partida),
+    partida.turmaA ?? "",
+    partida.turmaB ?? "",
+    partida.placarA ?? "",
+    partida.placarB ?? "",
+    partida.penaltisA ?? "",
+    partida.penaltisB ?? "",
+    partida.vencedor ?? "",
+    formatarStatus(partida.status),
+    partida.data ?? "",
+    partida.hora ?? "",
+    partida.local ?? "",
+  ]);
+
+  baixarCsv(
+    `intermatch-partidas-${selectAno.value}ano-${slugArquivo(selectEsporte.value)}.csv`,
+    ["Ano", "Esporte", "ID", "Fase", "Turma A", "Turma B", "Placar A", "Placar B", "Pênaltis A", "Pênaltis B", "Vencedor", "Status", "Data", "Hora", "Local"],
+    linhas,
+  );
+  setMensagem("CSV de partidas exportado.", "success");
+}
+
+async function exportarRankingCsv() {
+  try {
+    const ranking = await buscarRankingAtual();
+
+    if (ranking.length === 0) {
+      setMensagem("Não há ranking carregado para exportar.", "warning");
+      return;
+    }
+
+    baixarCsv(
+      `intermatch-ranking-${selectAno.value}ano.csv`,
+      ["Posição", "Ano", "Turma", "Pontos"],
+      ranking.map((item, index) => [index + 1, `${selectAno.value}º Ano`, item.turma, item.pontos]),
+    );
+    setMensagem("CSV de ranking exportado.", "success");
+  } catch (erro) {
+    console.error(erro);
+    setMensagem("Não foi possível exportar o ranking.", "error");
+  }
+}
+
 loginForm.addEventListener("submit", async (evento) => {
   evento.preventDefault();
   setLoginMensagem("Entrando...");
@@ -557,6 +788,20 @@ botaoSalvar.addEventListener("click", salvarResultado);
 botaoSalvarAgenda.addEventListener("click", salvarAgenda);
 botaoMarcarAoVivo.addEventListener("click", () => atualizarStatusPartida("ao-vivo"));
 botaoLimparResultado.addEventListener("click", limparResultado);
+botaoExportarPartidasCsv.addEventListener("click", exportarPartidasCsv);
+botaoExportarRankingCsv.addEventListener("click", exportarRankingCsv);
+botaoCancelarConfirmacao.addEventListener("click", () => fecharConfirmacao(false));
+botaoConfirmarAcao.addEventListener("click", () => fecharConfirmacao(true));
+modalConfirmacao.addEventListener("click", (evento) => {
+  if (evento.target.id === "modal-confirmacao-admin") {
+    fecharConfirmacao(false);
+  }
+});
+document.addEventListener("keydown", (evento) => {
+  if (evento.key === "Escape" && modalConfirmacao.classList.contains("open")) {
+    fecharConfirmacao(false);
+  }
+});
 filtrosAdmin.addEventListener("click", async (evento) => {
   const botao = evento.target.closest("[data-admin-filter]");
 

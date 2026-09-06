@@ -34,6 +34,7 @@ let partidasAtuais = [];
 let rankingAtual = [];
 let visualizacaoAtual = "completo";
 let partidaAberta = null;
+let turmaAberta = null;
 
 async function buscarPartidas(ano, esporte) {
   const snapshot = await getDocs(
@@ -131,6 +132,25 @@ function obterAgenda(partida) {
   const dataHora = [data, hora].filter(Boolean).join(" - ");
 
   return [dataHora, local].filter(Boolean).join(" • ");
+}
+
+function obterHashTurma() {
+  const hash = window.location.hash.replace(/^#/, "");
+  const params = new URLSearchParams(hash);
+
+  return params.get("turma");
+}
+
+function atualizarHashTurma(turma) {
+  const url = new URL(window.location.href);
+
+  if (turma) {
+    url.hash = `turma=${encodeURIComponent(turma)}`;
+  } else if (url.hash.startsWith("#turma=")) {
+    url.hash = "";
+  }
+
+  window.history.replaceState({}, "", url);
 }
 
 function partidaContemTurma(partida, busca) {
@@ -274,8 +294,10 @@ async function renderizarInterface() {
     renderizarChaveamento(partidas);
     renderizarProximosJogos(proximosJogos, proximosContainer);
     renderizarRanking(ranking, tabelaRanking, notaRanking);
+    renderizarListaTurmas(partidas, ranking);
     renderizarModoEvento(partidas, proximosJogos);
     aplicarVisualizacao();
+    abrirPerfilDaUrl();
 
     if (partidas.length === 0) {
       tituloJogos.innerText = `Partidas - ${nomeEsporteAtual()}`;
@@ -450,6 +472,58 @@ function renderizarRanking(ranking, tabelaRanking, notaRanking) {
       </tr>
     `;
   });
+}
+
+function obterTurmasDaCategoria(partidas, ranking) {
+  const nomes = new Set(ranking.map((item) => item.turma));
+
+  partidas.forEach((partida) => {
+    [partida.turmaA, partida.turmaB, partida.vencedor]
+      .filter(Boolean)
+      .forEach((turma) => {
+        if (turma !== "A definir") {
+          nomes.add(turma);
+        }
+      });
+  });
+
+  return [...nomes].sort((a, b) => {
+    const pontosA = ranking.find((item) => item.turma === a)?.pontos ?? 0;
+    const pontosB = ranking.find((item) => item.turma === b)?.pontos ?? 0;
+
+    return pontosB - pontosA || a.localeCompare(b);
+  });
+}
+
+function renderizarListaTurmas(partidas, ranking) {
+  const lista = document.getElementById("lista-turmas");
+  const nota = document.getElementById("nota-turmas");
+  const turmas = obterTurmasDaCategoria(partidas, ranking);
+
+  nota.textContent = turmas.length ? `${turmas.length} perfis` : "Sem turmas";
+
+  if (turmas.length === 0) {
+    lista.innerHTML = '<div class="empty-state compact">Nenhuma turma encontrada nesta categoria.</div>';
+    return;
+  }
+
+  lista.innerHTML = turmas
+    .map((turma) => {
+      const resumo = obterResumoTurma(turma);
+      const campanha =
+        resumo.finalizadas.length > 0
+          ? `${resumo.vitorias}V • ${resumo.derrotas}D`
+          : "Sem jogos finalizados";
+
+      return `
+        <button class="team-directory-item" data-team="${textoSeguro(turma)}">
+          <span>${textoSeguro(turma)}</span>
+          <strong>${textoSeguro(campanha)}</strong>
+          <small>${textoSeguro(resumo.pontos)} pts gerais</small>
+        </button>
+      `;
+    })
+    .join("");
 }
 
 function renderizarPartidas(partidas, containerJogos, notaJogos) {
@@ -786,6 +860,16 @@ function obterResumoTurma(turma) {
   const finalizadas = partidasReais.filter((partida) => partida.status === "encerrada");
   const vitorias = finalizadas.filter((partida) => partida.vencedor === turma).length;
   const derrotas = finalizadas.length - vitorias;
+  const golsPro = finalizadas.reduce((total, partida) => {
+    if (partida.turmaA === turma) return total + (Number(partida.placarA) || 0);
+    if (partida.turmaB === turma) return total + (Number(partida.placarB) || 0);
+    return total;
+  }, 0);
+  const golsContra = finalizadas.reduce((total, partida) => {
+    if (partida.turmaA === turma) return total + (Number(partida.placarB) || 0);
+    if (partida.turmaB === turma) return total + (Number(partida.placarA) || 0);
+    return total;
+  }, 0);
   const pontos = rankingAtual.find((item) => item.turma === turma)?.pontos ?? 0;
   const posicaoRanking =
     rankingAtual.findIndex((item) => item.turma === turma) >= 0
@@ -798,6 +882,8 @@ function obterResumoTurma(turma) {
     finalizadas,
     vitorias,
     derrotas,
+    golsPro,
+    golsContra,
     pontos,
     posicaoRanking,
   };
@@ -825,7 +911,7 @@ function formatarResultadoTurma(partida, turma) {
   return `${sinal}, ${marcador}${decisao}`;
 }
 
-function abrirPerfilTurma(turma) {
+function abrirPerfilTurma(turma, opcoes = {}) {
   if (!turma || turma === "A definir") return;
 
   const modal = document.getElementById("modal-turma");
@@ -834,7 +920,12 @@ function abrirPerfilTurma(turma) {
     resumo.finalizadas.length > 0
       ? Math.round((resumo.vitorias / resumo.finalizadas.length) * 100)
       : 0;
+  const saldo = resumo.golsPro - resumo.golsContra;
+  const proximaPartida = resumo.partidasReais.find(
+    (partida) => partida.status !== "encerrada",
+  );
 
+  turmaAberta = turma;
   document.getElementById("modal-turma-contexto").textContent =
     `${nomeEsporteAtual()} • ${anoAtual}º Ano`;
   document.getElementById("modal-turma-titulo").textContent = turma;
@@ -843,8 +934,20 @@ function abrirPerfilTurma(turma) {
     <div><span>Vitórias</span><strong>${resumo.vitorias}</strong></div>
     <div><span>Derrotas</span><strong>${resumo.derrotas}</strong></div>
     <div><span>Aproveitamento</span><strong>${aproveitamento}%</strong></div>
+    <div><span>Saldo</span><strong>${saldo > 0 ? `+${saldo}` : saldo}</strong></div>
+    <div><span>Gols pró</span><strong>${resumo.golsPro}</strong></div>
     <div><span>Pontos gerais</span><strong>${resumo.pontos}</strong></div>
     <div><span>Ranking</span><strong>${resumo.posicaoRanking ? `${resumo.posicaoRanking}º` : "-"}</strong></div>
+  `;
+  document.getElementById("modal-turma-resumo").innerHTML = `
+    <div>
+      <span>Próximo compromisso</span>
+      <strong>${textoSeguro(proximaPartida ? `${nomeFase(proximaPartida)} • ${obterAgenda(proximaPartida) || "Sem agenda"}` : "Nenhum jogo pendente")}</strong>
+    </div>
+    <div>
+      <span>Campanha</span>
+      <strong>${textoSeguro(`${resumo.vitorias} vitória(s), ${resumo.derrotas} derrota(s), ${resumo.golsPro} GP e ${resumo.golsContra} GC`)}</strong>
+    </div>
   `;
   document.getElementById("modal-turma-jogos").innerHTML = resumo.jogos.length
     ? resumo.jogos
@@ -869,13 +972,48 @@ function abrirPerfilTurma(turma) {
 
   modal.classList.add("open");
   modal.setAttribute("aria-hidden", "false");
+
+  if (opcoes.atualizarUrl !== false) {
+    atualizarHashTurma(turma);
+  }
 }
 
 function fecharPerfilTurma() {
   const modal = document.getElementById("modal-turma");
 
+  turmaAberta = null;
   modal.classList.remove("open");
   modal.setAttribute("aria-hidden", "true");
+  atualizarHashTurma(null);
+}
+
+function abrirPerfilDaUrl() {
+  const turma = obterHashTurma();
+
+  if (!turma || turma === turmaAberta) return;
+
+  const turmas = obterTurmasDaCategoria(partidasAtuais, rankingAtual);
+  const turmaEncontrada = turmas.find((item) => item.toLowerCase() === turma.toLowerCase());
+
+  if (turmaEncontrada) {
+    abrirPerfilTurma(turmaEncontrada, { atualizarUrl: false });
+  }
+}
+
+async function copiarLinkTurma() {
+  if (!turmaAberta) return;
+
+  atualizarHashTurma(turmaAberta);
+
+  try {
+    await navigator.clipboard.writeText(window.location.href);
+    document.getElementById("copiar-link-turma").textContent = "Link copiado";
+    setTimeout(() => {
+      document.getElementById("copiar-link-turma").textContent = "Copiar link";
+    }, 1800);
+  } catch {
+    window.prompt("Copie o link da turma:", window.location.href);
+  }
 }
 
 function ativarArrasteHorizontal(elemento) {
@@ -1059,11 +1197,23 @@ document.getElementById("modal-partida").addEventListener("click", (evento) => {
   }
 });
 document.getElementById("fechar-modal-turma").addEventListener("click", fecharPerfilTurma);
+document.getElementById("copiar-link-turma").addEventListener("click", copiarLinkTurma);
+document.getElementById("limpar-busca-turma").addEventListener("click", () => {
+  document.getElementById("busca-turma").value = "";
+  termoBusca = "";
+  renderizarChaveamento(partidasAtuais);
+  renderizarPartidas(
+    partidasAtuais,
+    document.getElementById("container-jogos"),
+    document.getElementById("nota-jogos"),
+  );
+});
 document.getElementById("modal-turma").addEventListener("click", (evento) => {
   if (evento.target.id === "modal-turma") {
     fecharPerfilTurma();
   }
 });
+window.addEventListener("hashchange", abrirPerfilDaUrl);
 document.addEventListener("keydown", (evento) => {
   if (evento.key === "Escape") {
     fecharDetalhesPartida();

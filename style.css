@@ -972,6 +972,94 @@ header {
     gap: 8px;
 }
 
+.team-directory {
+    display: grid;
+    gap: 8px;
+}
+
+.team-directory-item {
+    width: 100%;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 4px 10px;
+    text-align: left;
+    background: var(--card-bg);
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.75rem;
+    cursor: pointer;
+    box-shadow: var(--shadow-soft);
+}
+
+.team-directory-item:hover {
+    border-color: var(--accent);
+}
+
+.team-directory-item span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 900;
+}
+
+.team-directory-item strong {
+    color: var(--accent);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.86rem;
+}
+
+.team-directory-item small {
+    grid-column: 1 / -1;
+    color: var(--text-muted);
+    font-size: 0.68rem;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.team-profile-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 0.9rem;
+}
+
+.team-profile-actions .admin-secondary {
+    padding: 9px 11px;
+}
+
+.team-profile-summary {
+    display: grid;
+    gap: 8px;
+    margin-bottom: 0.9rem;
+}
+
+.team-profile-summary div,
+.confirm-summary div {
+    display: grid;
+    gap: 3px;
+    background: var(--panel-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.75rem;
+}
+
+.team-profile-summary span,
+.confirm-summary span {
+    color: var(--text-muted);
+    font-size: 0.66rem;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.team-profile-summary strong,
+.confirm-summary strong {
+    color: var(--text-main);
+    font-size: 0.88rem;
+    line-height: 1.35;
+}
+
 .team-history-item {
     width: 100%;
     text-align: left;
@@ -1359,6 +1447,32 @@ button.admin-public-link {
     font-weight: 800;
 }
 
+.confirm-modal p {
+    color: var(--text-muted);
+    font-weight: 800;
+    line-height: 1.45;
+    margin: 0.7rem 0 1rem;
+}
+
+.confirm-summary {
+    display: grid;
+    gap: 8px;
+}
+
+.confirm-modal .admin-primary {
+    width: auto;
+    flex: 1;
+    margin-top: 0;
+}
+
+.confirm-modal .admin-secondary {
+    flex: 1;
+}
+
+.export-card .admin-card-header > span {
+    font-size: 0.72rem;
+}
+
 footer {
     text-align: center;
     padding: 2rem;
@@ -1694,6 +1808,14 @@ footer span {
 
     .team-profile-stats {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .team-directory-item {
+        box-shadow: none;
+    }
+
+    .team-profile-actions {
+        flex-direction: column;
     }
 
     .admin-shell {
